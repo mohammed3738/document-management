@@ -21,7 +21,7 @@ class Company(models.Model):
     date_of_incorporation = models.DateField()
     contact_person = models.CharField(max_length=122)
     entity_type = models.CharField(max_length=100, choices=entities)
-    file_no = models.CharField(max_length=100, unique=True)
+    # file_no = models.CharField(max_length=100, unique=True)
 
 
     # def save(self):
