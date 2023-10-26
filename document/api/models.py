@@ -75,7 +75,7 @@ class Branch(models.Model):
 class OwnerDetails(models.Model):
     company = models.ForeignKey(Company,on_delete=models.CASCADE,null=True, blank=True)
     name= models.CharField(max_length=50)
-    share = models.CharField(max_length=255)
+    share = models.IntegerField()
     pan = models.CharField(max_length=255)
     aadhar = models.CharField(max_length=255)
     mobile =models.CharField(max_length=50)

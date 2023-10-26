@@ -91,17 +91,28 @@ def company_list(request):
     
     return Response(serializer.data)
 
+@api_view(['GET'])
+def company_api(request, pk):
+    company = Company.objects.get(id=pk)
+    serializer=CompanySerializer(company)
+    return Response(serializer.data)
+  
 
-@api_view(['POST'])
+
+
+
+@api_view(['PUT'])
 def company_update(request, pk):
     company = Company.objects.get(id=pk)
-    if request.method=="POST":
-        company_serializer = CompanySerializer(instance=company, data=request.data)
-        if company_serializer.is_valid():
-            company_serializer.save()
-            return Response({'message':'Company updated successfully!'},status=status.HTTP_200_OK)
-        return Response(company_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    # serializer=CompanySerializer(company)
+
+    # if request.method=="PUT":
+    company_serializer = CompanySerializer(instance=company, data=request.data)
+    if company_serializer.is_valid():
+        company_serializer.save()
+        return Response({'message':'Company updated successfully!'},status=status.HTTP_200_OK)
+    return Response(company_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # return Response({'message':'Method not allowed'},serializer,status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 @api_view(['DELETE'])
@@ -215,17 +226,27 @@ def create_owner(request, pk):
     return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
-@api_view(['POST'])
-def update_owner(request, pk, owner_id):
+@api_view(['POST','GET'])
+def update_owner(request, pk, owner_pk):
     company = get_object_or_404(Company, id=pk)
-    owner = get_object_or_404(OwnerDetails, id=owner_id)
+    owner = get_object_or_404(OwnerDetails, id=owner_pk)
+    # owner_serializer = OwnerSerializer(instance=owner,data=request.data)
+
+    # if request.method=="POST":
+    #     if owner_serializer.is_valid():
+    #         owner_serializer.save(company=company)
+    #         return Response({'message': 'Owner updated successfully.'},owner_serializer.data, status=status.HTTP_201_CREATED)
+    owner_serializer = OwnerSerializer(instance=owner,data=request.data)
+
     if request.method=="POST":
-        owner_serializer = OwnerSerializer(data=request.data,instance=owner)
         if owner_serializer.is_valid():
             owner_serializer.save(company=company)
             return Response({'message': 'Owner updated successfully.'}, status=status.HTTP_201_CREATED)
         return Response(owner_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    elif request.method=='GET':
+        # return Response(owner_serializer.initial_data,{'message':"working"})
+        owner_serializer_1 = OwnerSerializer(owner)
+        return Response(owner_serializer_1.data)
 
 
 @api_view(['DELETE'])
