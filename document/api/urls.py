@@ -10,6 +10,10 @@ urlpatterns = [
     path('company-update/<int:pk>', views.company_update,name="company-update"),
     path('company-api/<int:pk>', views.company_api,name="company-api"),
     path('company-delete/<int:pk>', views.company_delete,name="company-delete"),
+
+    # company details
+    path('company-details/<int:pk>', views.company_details,name="company-details"),
+
     #User Urls
     path('create-user/<int:company_id>', views.create_user,name="create-user"),
     path('user-update/<int:pk>', views.user_update,name="user-update"),
