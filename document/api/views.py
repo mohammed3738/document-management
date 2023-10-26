@@ -98,7 +98,12 @@ def company_api(request, pk):
     return Response(serializer.data)
   
 
+def company_details(request,pk):
+    company = Company.objects.all(id=pk)
+    owner_list = OwnerDetails.objects.filter(company=company)
+    owner_serializer = OwnerSerializer(owner_list,many=True)
 
+    return Response(owner_serializer.data)
 
 
 @api_view(['PUT'])
