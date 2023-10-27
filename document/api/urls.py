@@ -20,7 +20,7 @@ urlpatterns = [
     #Branch Urls
     path('create-branch/<int:pk>', views.create_branch,name="create-branch"),
     path('update-branch/<int:pk>/<int:branch_pk>', views.update_branch,name="update-branch"),
-    path('delete-branch/<int:pk>/<int:branch_pk>', views.update_branch,name="update-branch"),
+    path('delete-branch/<int:pk>/<int:branch_pk>', views.update_branch,name="delete-branch"),
     #Owner Urls
     path('create-owner/<int:pk>', views.create_owner,name="create-owner"),
     path('update-owner/<int:pk>/<int:owner_pk>', views.update_owner,name="update-owner"),

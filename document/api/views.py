@@ -97,13 +97,20 @@ def company_api(request, pk):
     serializer=CompanySerializer(company)
     return Response(serializer.data)
   
-
+@api_view(['GET'])
 def company_details(request,pk):
-    company = Company.objects.all(id=pk)
+    company = Company.objects.get(id=pk)
     owner_list = OwnerDetails.objects.filter(company=company)
+    branch_list = Branch.objects.filter(company=company)
+    # print(owner_serializer.id)
     owner_serializer = OwnerSerializer(owner_list,many=True)
+    branch_serializer = BranchSerializer(branch_list,many=True)
 
-    return Response(owner_serializer.data)
+    data = {
+        "owners": owner_serializer.data,
+        "branches": branch_serializer.data
+    }
+    return Response(data)
 
 
 @api_view(['PUT'])
@@ -255,9 +262,9 @@ def update_owner(request, pk, owner_pk):
 
 
 @api_view(['DELETE'])
-def delete_owner(request,pk,owner_id):
+def delete_owner(request,pk,owner_pk):
     company = get_object_or_404(Company, id=pk)
-    owner = get_object_or_404(OwnerDetails, id=owner_id)
+    owner = get_object_or_404(OwnerDetails, id=owner_pk)
     owner.delete()
     return Response({"message": "Owner deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
 

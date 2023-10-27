@@ -22,13 +22,13 @@ class UserSerializer(ModelSerializer):
 class BranchSerializer(ModelSerializer):
     class Meta:
         model=Branch
-        fields = ['branch']
+        fields = ['id','branch','address']
 
 
 class OwnerSerializer(ModelSerializer):
     class Meta:
         model = OwnerDetails
-        fields = ['name','share','pan','aadhar','mobile','email']
+        fields = ['id','name','share','pan','aadhar','mobile','email']
 
 
 
