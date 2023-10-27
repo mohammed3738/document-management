@@ -197,26 +197,31 @@ def create_branch(request, pk):
     return Response(branch_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['POST'])
+
+
+@api_view(['POST','GET'])
 def update_branch(request,pk, branch_pk):
     company = get_object_or_404(Company, id=pk)
     branch = get_object_or_404(Branch, id=branch_pk)
+    branch_serializer = BranchSerializer(data=request.data, instance=branch)
 
     if request.method=="POST":
-        branch_serializer = BranchSerializer(data=request.data, instance=branch)
         if branch_serializer.is_valid():
            
             branch_serializer.save(company=company)
             return Response({'message':'Branch updated successfully!'},status=status.HTTP_200_OK)
         return Response(branch_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-   
-    return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    elif request.method=='GET':
+        # return Response(owner_serializer.initial_data,{'message':"working"})
+        branch_serializer_1 = BranchSerializer(branch)
+        return Response(branch_serializer_1.data)
+    # return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 
 @api_view(['DELETE'])
-def branch_delete(request,pk,branch_pk):
+def delete_branch(request,pk,branch_pk):
     branch = Branch.objects.get(id=branch_pk)
     branch.delete()
     return Response({"message": "Branch deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
