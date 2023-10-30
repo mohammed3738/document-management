@@ -16,7 +16,7 @@ urlpatterns = [
 
     #User Urls
     path('create-user/<int:company_id>', views.create_user,name="create-user"),
-    path('user-update/<int:pk>', views.user_update,name="user-update"),
+    path('user-update/<int:pk>/<int:user_pk>', views.user_update,name="user-update"),
     #Branch Urls
     path('create-branch/<int:pk>', views.create_branch,name="create-branch"),
     path('update-branch/<int:pk>/<int:branch_pk>', views.update_branch,name="update-branch"),
