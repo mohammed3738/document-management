@@ -287,7 +287,7 @@ def delete_owner(request,pk,owner_pk):
 def create_bank_details(request,pk):
     company = get_object_or_404(Company,id=pk)
     if request.method=="POST":
-        bank_serializer = BankSerializer(request.data)
+        bank_serializer = BankSerializer(data=request.data)
         if bank_serializer.is_valid():
          
             bank_serializer.save(company=company)
@@ -301,7 +301,7 @@ def create_bank_details(request,pk):
 def update_bank(request,pk,bank_pk):
     company = get_object_or_404(Company, id=pk)
     bank = get_object_or_404(BankDetails, id=bank_pk)
-    bank_serializer = BankSerializer(request.data, instance=bank)
+    bank_serializer = BankSerializer(dat=request.data, instance=bank)
 
     if request.method=="POST":
         if bank_serializer.is_valid():
@@ -320,7 +320,7 @@ def update_bank(request,pk,bank_pk):
 @api_view(['DELETE'])
 def delete_bank(request,pk,bank_pk):
     company = get_object_or_404(Company, id=pk)
-    bank = get_object_or_404(BankDetails, id=bank_id)
+    bank = get_object_or_404(BankDetails, id=bank_pk)
     bank.delete()
     return Response({"message": "Bank deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
 

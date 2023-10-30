@@ -35,7 +35,7 @@ class OwnerSerializer(ModelSerializer):
 class BankSerializer(ModelSerializer):
     class Meta:
         model = BankDetails
-        fields = ['name','account_no','ifsc','account_type','branch','attachment']
+        fields = ['id','name','account_no','ifsc','account_type','branch','attachment']
 
 
 class AadharSerializer(ModelSerializer):
