@@ -297,24 +297,28 @@ def create_bank_details(request,pk):
     return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
-@api_view(['POST'])
-def update_bank(request,pk,bank_id):
+@api_view(['POST','GET'])
+def update_bank(request,pk,bank_pk):
     company = get_object_or_404(Company, id=pk)
-    bank = get_object_or_404(BankDetails, id=bank_id)
+    bank = get_object_or_404(BankDetails, id=bank_pk)
+    bank_serializer = BankSerializer(request.data, instance=bank)
+
     if request.method=="POST":
-        bank_serializer = BankSerializer(request.data,instance=bank)
         if bank_serializer.is_valid():
            
             bank_serializer.save(company=company)
             return Response({'message': 'Bank updated successfully.'}, status=status.HTTP_201_CREATED)
         return Response(bank_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    elif request.method=="GET":
+            bank_serializer1 = BankSerializer(bank)
+    return Response(bank_serializer1.data)
+
 
 
 
 
 @api_view(['DELETE'])
-def delete_bank(request,pk,bank_id):
+def delete_bank(request,pk,bank_pk):
     company = get_object_or_404(Company, id=pk)
     bank = get_object_or_404(BankDetails, id=bank_id)
     bank.delete()
