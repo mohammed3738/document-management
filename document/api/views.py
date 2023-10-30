@@ -143,14 +143,16 @@ def create_user(request, company_id):
     company = get_object_or_404(Company, id=company_id)
 
     if request.method == "POST":
+        print("post is working")
         user_serializer = UserSerializer(data=request.data)  # Use UserSerializer to validate the data
         if user_serializer.is_valid():
+            print("Serializer is valid")
             user_serializer.save(company=company)  # Save the user with the associated company
 
             # Extract email and username from the validated data
             user_email = user_serializer.validated_data.get('email')
             username = user_serializer.validated_data.get('username')
-            password = user_serializer.validated_data.get('password1')
+            password = user_serializer.validated_data.get('password')
 
             # Prepare email content
             subject = "User Credentials"
@@ -162,6 +164,8 @@ def create_user(request, company_id):
             send_mail(subject, message, from_email, recipient_list, fail_silently=False)
 
             return Response({'message':'Created User Successfully'},status=status.HTTP_201_CREATED)
+        return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    print("Serializer is not valid")
 
     return Response({'message':'Error'},status=status.HTTP_400_BAD_REQUEST)
 
