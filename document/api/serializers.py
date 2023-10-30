@@ -48,6 +48,18 @@ class TanSerializer(ModelSerializer):
     class Meta:
         model = Tan
         fields = ['tan_number','tan_login','tan_password','remarks','filling_freq','attachment']
+
+class PtrcSerializer(ModelSerializer):
+    class Meta:
+        model = Ptrc
+        fields = ['ptrc_number','ptrc_login','ptrc_password','remarks','filling_freq','attachment']
+
+
+class PtecSerializer(ModelSerializer):
+    class Meta:
+        model = Ptec
+        fields = ['ptec_number','ptec_login','ptec_password','remarks','filling_freq','attachment']
+
 # class CompanySerializer(ModelSerializer):
 
 #     class Meta:

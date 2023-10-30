@@ -102,13 +102,16 @@ def company_details(request,pk):
     company = Company.objects.get(id=pk)
     owner_list = OwnerDetails.objects.filter(company=company)
     branch_list = Branch.objects.filter(company=company)
+    user_list = CustomUser.objects.filter(company=company)
     # print(owner_serializer.id)
     owner_serializer = OwnerSerializer(owner_list,many=True)
     branch_serializer = BranchSerializer(branch_list,many=True)
+    user_serializer = UserSerializer(user_list,many=True)
 
     data = {
         "owners": owner_serializer.data,
-        "branches": branch_serializer.data
+        "branches": branch_serializer.data,
+        "users":user_serializer.data
     }
     return Response(data)
 
@@ -333,9 +336,9 @@ def create_aadhar(request, pk):
 
 
 @api_view(['POST'])
-def update_aadhar(request, pk, aadhar_id):
+def update_aadhar(request, pk, aadhar_pk):
     company = get_object_or_404(Company, id=pk)
-    aadhar = get_object_or_404(UdyamAadhar, id=aadhar_id)
+    aadhar = get_object_or_404(UdyamAadhar, id=aadhar_pk)
 
     if request.method == "POST":
         aadhar_serializer = AadharSerializer(request.data, instance=aadhar)
@@ -347,9 +350,9 @@ def update_aadhar(request, pk, aadhar_id):
     return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 @api_view(['DELETE'])
-def delete_aadhar(request, pk, aadhar_id):
+def delete_aadhar(request, pk, aadhar_pk):
     company = get_object_or_404(Company, id=pk)
-    aadhar = get_object_or_404(UdyamAadhar, id=aadhar_id)
+    aadhar = get_object_or_404(UdyamAadhar, id=aadhar_pk)
     aadhar.delete()
     return Response({"message": "Udhyam Aadhar deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
 
@@ -368,3 +371,110 @@ def create_tan(request,pk):
         return Response(tan_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
+
+@api_view(['POST','GET'])
+def update_tan(request, pk, tan_pk):
+    company = get_object_or_404(Company, id=pk)
+    tan = get_object_or_404(Tan, id=tan_pk)
+    tan_serializer = TanSerializer(request.data, instance=tan)
+
+    if request.method == "POST":
+        if tan_serializer.is_valid():
+        
+            tan_serializer.save(company=company)
+            return Response({'message': 'Tan updated successfully.'}, status=status.HTTP_201_CREATED)
+        return Response(tan_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method=="GET":
+        tan_serializer1=TanSerializer(tan)
+    return Response(tan_serializer1.data)
+
+
+
+@api_view(['DELETE'])
+def delete_tan(request, pk, tan_pk):
+    company = get_object_or_404(Company, id=pk)
+    tan = get_object_or_404(Tan, id=tan_pk)
+    tan.delete()
+    return Response({"message": "Tan deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
+# *******************Ptrc views*******************
+
+@api_view(['POST'])
+def create_ptrc(request,pk):
+    company = get_object_or_404(Company, id=pk)
+    if request.method=="POST":
+        ptrc_serializer = PtrcSerializer(request.data)
+        if ptrc_serializer.is_valid():
+
+            ptrc_serializer.save(company=company)
+            return Response({'message': 'Ptrc created successfully.'}, status=status.HTTP_201_CREATED)
+
+        return Response(ptrc_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+@api_view(['POST','GET'])
+def update_ptrc(request, pk, ptrc_pk):
+    company = get_object_or_404(Company, id=pk)
+    ptrc = get_object_or_404(Ptrc, id=ptrc_pk)
+    ptrc_serializer = PtrcSerializer(request.data, instance=ptrc)
+
+    if request.method == "POST":
+        if ptrc_serializer.is_valid():
+        
+            ptrc_serializer.save(company=company)
+            return Response({'message': 'Ptrc updated successfully.'}, status=status.HTTP_201_CREATED)
+        return Response(ptrc_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method=="GET":
+        ptrc_serializer1=PtrcSerializer(ptrc)
+    return Response(ptrc_serializer1.data)
+
+
+@api_view(['DELETE'])
+def delete_ptrc(request, pk, ptrc_pk):
+    company = get_object_or_404(Company, id=pk)
+    ptrc = get_object_or_404(Ptrc, id=ptrc_pk)
+    ptrc.delete()
+    return Response({"message": "Ptrc deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
+
+
+# *******************Ptec views*******************
+
+@api_view(['POST'])
+def create_ptec(request,pk):
+    company = get_object_or_404(Company, id=pk)
+    if request.method=="POST":
+        ptec_serializer = PtecSerializer(request.data)
+        if ptec_serializer.is_valid():
+
+            ptec_serializer.save(company=company)
+            return Response({'message': 'Ptec created successfully.'}, status=status.HTTP_201_CREATED)
+
+        return Response(ptec_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+@api_view(['POST','GET'])
+def update_ptec(request, pk, ptec_pk):
+    company = get_object_or_404(Company, id=pk)
+    ptec = get_object_or_404(Ptec, id=ptec_pk)
+    ptec_serializer = PtecSerializer(request.data, instance=ptec)
+
+    if request.method == "POST":
+        if ptec_serializer.is_valid():
+        
+            ptec_serializer.save(company=company)
+            return Response({'message': 'Ptrc updated successfully.'}, status=status.HTTP_201_CREATED)
+        return Response(ptec_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method=="GET":
+        ptec_serializer1=PtrcSerializer(ptec)
+    return Response(ptec_serializer1.data)
+
+
+@api_view(['DELETE'])
+def delete_ptec(request, pk, ptec_pk):
+    company = get_object_or_404(Company, id=pk)
+    ptec = get_object_or_404(Ptec, id=ptec_pk)
+    ptec.delete()
+    return Response({"message": "Ptec deleted successfully"}, status=status.HTTP_204_NO_CONTENT)

@@ -127,3 +127,32 @@ class Tan(models.Model):
 
     def __str__(self):
         return self.tan_number
+    
+
+class Ptrc(models.Model):
+    company = models.ForeignKey(Company,on_delete=models.CASCADE,null=True, blank=True)
+    ptrc_number = models.CharField(max_length=255)
+    ptrc_login = models.CharField(max_length=255)
+    ptrc_password = models.CharField(max_length=100)
+    remarks = models.CharField(max_length=500)
+    filling_freq = models.CharField(max_length=100, choices = filing)
+    attachment = models.FileField()
+
+
+    def __str__(self):
+        return self.ptrc_number
+    
+
+class Ptec(models.Model):
+    company = models.ForeignKey(Company,on_delete=models.CASCADE,null=True, blank=True)
+    ptec_number = models.CharField(max_length=255)
+    ptec_login = models.CharField(max_length=255)
+    ptec_password = models.CharField(max_length=100)
+    remarks = models.CharField(max_length=500)
+    filling_freq = models.CharField(max_length=100, choices = filing)
+    attachment = models.FileField()
+
+
+    def __str__(self):
+        return self.ptec_number
+    

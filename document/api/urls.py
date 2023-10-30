@@ -35,6 +35,16 @@ urlpatterns = [
     path('delete-aadhar/<int:pk>/<int:aadhar_pk>', views.delete_aadhar,name="delete-aadhar"),
     # Tan urls
     path('create-tan/<int:pk>', views.create_tan,name="create-tan"),
+    path('update-tan/<int:pk>/<int:tan_pk>', views.update_tan,name="update-tan"),
+    path('delete-tan/<int:pk>/<int:tan_pk>', views.delete_tan,name="delete-tan"),
+    # Ptrc urls
+    path('create-ptrc/<int:pk>', views.create_ptrc,name="create-ptrc"),
+    path('update-ptrc/<int:pk>/<int:ptrc_pk>', views.update_ptrc,name="update-ptrc"),
+    path('delete-ptrc/<int:pk>/<int:ptrc_pk>', views.delete_ptrc,name="delete-ptrc"),
+    # Ptec urls
+    path('create-ptec/<int:pk>', views.create_ptec,name="create-ptec"),
+    path('update-ptec/<int:pk>/<int:ptec_pk>', views.update_ptec,name="update-ptec"),
+    path('delete-ptec/<int:pk>/<int:ptec_pk>', views.delete_ptec,name="delete-ptec"),
 
 
     # path('notes/<int:pk>', views.get_single_note,name="notes"),
