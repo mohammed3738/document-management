@@ -47,7 +47,7 @@ class TanSerializer(ModelSerializer):
 
     class Meta:
         model = Tan
-        fields = ['tan_number','tan_login','tan_password','remarks','filling_freq']
+        fields = ['tan_number','tan_login','tan_password','remarks','filling_freq','attachment']
 # class CompanySerializer(ModelSerializer):
 
 #     class Meta:

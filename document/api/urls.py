@@ -33,6 +33,8 @@ urlpatterns = [
     path('create-aadhar/<int:pk>', views.create_aadhar,name="create-aadhar"),
     path('update-aadhar/<int:pk>/<int:aadhar_pk>', views.update_aadhar,name="update-aadhar"),
     path('delete-aadhar/<int:pk>/<int:aadhar_pk>', views.delete_aadhar,name="delete-aadhar"),
+    # Tan urls
+    path('create-tan/<int:pk>', views.create_tan,name="create-tan"),
 
 
     # path('notes/<int:pk>', views.get_single_note,name="notes"),
