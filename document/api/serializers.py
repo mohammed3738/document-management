@@ -41,7 +41,7 @@ class BankSerializer(ModelSerializer):
 class AadharSerializer(ModelSerializer):
     class Meta:
         model = UdyamAadhar
-        fields = ['ua_number','ua_login','ua_password','remarks','filling_freq','attachment']
+        fields = ['id','ua_number','ua_login','ua_password','remarks','filling_freq','attachment']
 
 class TanSerializer(ModelSerializer):
 
@@ -60,6 +60,22 @@ class PtecSerializer(ModelSerializer):
         model = Ptec
         fields = ['ptec_number','ptec_login','ptec_password','remarks','filling_freq','attachment']
 
+
+class PanSerializer(ModelSerializer):
+    class Meta:
+        model = Pan
+        fields = ['id','pan_number','pan_login','pan_password','remarks','filling_freq','attachment']
+
+
+class MsmeSerializer(ModelSerializer):
+    class Meta:
+        model = Msme
+        fields = ['id','msme_number','msme_login','msme_password','remarks','filling_freq','attachment']
+
+class GstSerializer(ModelSerializer):
+    class Meta:
+        model = Gst
+        fields = ['id','gst_number','gst_login','gst_password','remarks','filling_freq','attachment']
 # class CompanySerializer(ModelSerializer):
 
 #     class Meta:

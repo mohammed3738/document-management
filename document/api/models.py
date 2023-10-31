@@ -156,3 +156,43 @@ class Ptec(models.Model):
     def __str__(self):
         return self.ptec_number
     
+
+class Pan(models.Model):
+    company = models.ForeignKey(Company,on_delete=models.CASCADE,null=True, blank=True)
+    pan_number = models.CharField(max_length=255)
+    pan_login = models.CharField(max_length=255)
+    pan_password = models.CharField(max_length=100)
+    remarks = models.CharField(max_length=500)
+    filling_freq = models.CharField(max_length=100, choices = filing)
+    attachment = models.FileField()
+
+
+    def __str__(self):
+        return self.pan_number
+    
+
+class Msme(models.Model):
+    company = models.ForeignKey(Company,on_delete=models.CASCADE,null=True, blank=True)
+    msme_number = models.CharField(max_length=255)
+    msme_login = models.CharField(max_length=255)
+    msme_password = models.CharField(max_length=100)
+    remarks = models.CharField(max_length=500)
+    filling_freq = models.CharField(max_length=100, choices = filing)
+    attachment = models.FileField()
+
+
+    def __str__(self):
+        return self.msme_number
+    
+
+class Gst(models.Model):
+    branch = models.ForeignKey(Branch,on_delete=models.CASCADE,null=True, blank=True)
+    gst_number = models.CharField(max_length=255)
+    gst_login = models.CharField(max_length=255)
+    gst_password = models.CharField(max_length=100)
+    remarks = models.CharField(max_length=500)
+    filling_freq = models.CharField(max_length=100, choices = filing)
+    attachment = models.FileField()
+
+    def __str__(self):
+        return self.gst_number

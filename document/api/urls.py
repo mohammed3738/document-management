@@ -45,6 +45,18 @@ urlpatterns = [
     path('create-ptec/<int:pk>', views.create_ptec,name="create-ptec"),
     path('update-ptec/<int:pk>/<int:ptec_pk>', views.update_ptec,name="update-ptec"),
     path('delete-ptec/<int:pk>/<int:ptec_pk>', views.delete_ptec,name="delete-ptec"),
+    # Pan urls
+    path('create-pan/<int:pk>', views.create_pan,name="create-pan"),
+    path('update-pan/<int:pk>/<int:ptec_pk>', views.update_pan,name="update-pan"),
+    path('delete-pan/<int:pk>/<int:ptec_pk>', views.delete_pan,name="delete-pan"),
+    # Msme urls
+    path('create-msme/<int:pk>', views.create_msme,name="create-msme"),
+    path('update-msme/<int:pk>/<int:msme_pk>', views.update_msme,name="update-msme"),
+    path('delete-msme/<int:pk>/<int:msme_pk>', views.delete_msme,name="delete-msme"),
+    # Gst urls
+    path('create-gst/<int:branch_pk>', views.create_gst,name="create-gst"),
+    path('update-gst/<int:branch_pk>/<int:gst_pk>', views.update_gst,name="update-gst"),
+    path('delete-gst/<int:branch_pk>/<int:gst_pk>', views.delete_gst,name="delete-gst"),
 
 
     # path('notes/<int:pk>', views.get_single_note,name="notes"),

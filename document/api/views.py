@@ -103,15 +103,36 @@ def company_details(request,pk):
     owner_list = OwnerDetails.objects.filter(company=company)
     branch_list = Branch.objects.filter(company=company)
     user_list = CustomUser.objects.filter(company=company)
+    bank_list = BankDetails.objects.filter(company=company)
+    aadhar_list = UdyamAadhar.objects.filter(company=company)
+    tan_list = Tan.objects.filter(company=company)
+    ptrc_list = Ptrc.objects.filter(company=company)
+    ptec_list = Ptec.objects.filter(company=company)
+    pan_list = Pan.objects.filter(company=company)
+    msme_list = Msme.objects.filter(company=company)
     # print(owner_serializer.id)
     owner_serializer = OwnerSerializer(owner_list,many=True)
     branch_serializer = BranchSerializer(branch_list,many=True)
     user_serializer = UserSerializer(user_list,many=True)
+    bank_serializer = BankSerializer(bank_list,many=True)
+    aadhar_serializer = AadharSerializer(aadhar_list,many=True)
+    tan_serializer = TanSerializer(tan_list,many=True)
+    ptrc_serializer = PtrcSerializer(ptrc_list,many=True)
+    ptec_serializer = PtecSerializer(ptec_list,many=True)
+    pan_serializer = PanSerializer(pan_list,many=True)
+    msme_serializer = MsmeSerializer(msme_list,many=True)
 
     data = {
         "owners": owner_serializer.data,
         "branches": branch_serializer.data,
-        "users":user_serializer.data
+        "users":user_serializer.data,
+        "bank":bank_serializer.data,
+        "aadhar":aadhar_serializer.data,
+        "tan":tan_serializer.data,
+        "ptrc":ptrc_serializer.data,
+        "ptec":ptec_serializer.data,
+        "pan":pan_serializer.data,
+        "msme":msme_serializer.data
     }
     return Response(data)
 
@@ -482,3 +503,122 @@ def delete_ptec(request, pk, ptec_pk):
     ptec = get_object_or_404(Ptec, id=ptec_pk)
     ptec.delete()
     return Response({"message": "Ptec deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['POST'])
+def create_pan(request,pk):
+    company = get_object_or_404(Company, id=pk)
+    if request.method=="POST":
+        pan_serializer = PanSerializer(request.data)
+        if pan_serializer.is_valid():
+
+            pan_serializer.save(company=company)
+            return Response({'message': 'Pan created successfully.'}, status=status.HTTP_201_CREATED)
+
+        return Response(pan_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+@api_view(['POST','GET'])
+def update_pan(request, pk, pan_pk):
+    company = get_object_or_404(Company, id=pk)
+    pan = get_object_or_404(Pan, id=pan_pk)
+    pan_serializer = PtecSerializer(data=request.data, instance=pan)
+
+    if request.method == "POST":
+        if pan_serializer.is_valid():
+        
+            pan_serializer.save(company=company)
+            return Response({'message': 'Pan updated successfully.'}, status=status.HTTP_201_CREATED)
+        return Response(pan_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method=="GET":
+        pan_serializer1=PanSerializer(pan)
+    return Response(pan_serializer1.data)
+
+@api_view(['DELETE'])
+def delete_pan(request, pk, pan_pk):
+    company = get_object_or_404(Company, id=pk)
+    pan = get_object_or_404(Pan, id=pan_pk)
+    pan.delete()
+    return Response({"message": "Pan deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
+
+# *************msme views**************
+
+@api_view(['POST'])
+def create_msme(request,pk):
+    company = get_object_or_404(Company, id=pk)
+    if request.method=="POST":
+        msme_serializer = MsmeSerializer(data=request.data)
+        if msme_serializer.is_valid():
+
+            msme_serializer.save(company=company)
+            return Response({'message': 'Msme created successfully.'}, status=status.HTTP_201_CREATED)
+
+        return Response(msme_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+@api_view(['POST','GET'])
+def update_msme(request, pk, msme_pk):
+    company = get_object_or_404(Company, id=pk)
+    msme = get_object_or_404(Msme, id=msme_pk)
+    msme_serializer = MsmeSerializer(data=request.data, instance=msme)
+
+    if request.method == "POST":
+        if msme_serializer.is_valid():
+        
+            msme_serializer.save(company=company)
+            return Response({'message': 'Msme updated successfully.'}, status=status.HTTP_201_CREATED)
+        return Response(msme_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method=="GET":
+        msme_serializer1=MsmeSerializer(msme)
+    return Response(msme_serializer1.data)
+
+@api_view(['DELETE'])
+def delete_msme(request, pk, msme_pk):
+    company = get_object_or_404(Company, id=pk)
+    msme = get_object_or_404(Msme, id=msme_pk)
+    msme.delete()
+    return Response({"message": "Msme deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
+
+# **********************gst branch views**************
+
+@api_view(['POST'])
+def create_gst(request,branch_pk):
+    branch = get_object_or_404(Branch, id=branch_pk)
+    if request.method=="POST":
+        gst_serializer = GstSerializer(data=request.data)
+        if gst_serializer.is_valid():
+
+            gst_serializer.save(branch=branch)
+            return Response({'message': 'Gst created successfully.'}, status=status.HTTP_201_CREATED)
+
+        return Response(gst_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+@api_view(['POST','GET'])
+def update_gst(request, branch_pk, gst_pk):
+    branch = get_object_or_404(Branch, id=branch_pk)
+    gst = get_object_or_404(Gst, id=gst_pk)
+    gst_serializer = GstSerializer(data=request.data, instance=gst)
+
+    if request.method == "POST":
+        if gst_serializer.is_valid():
+        
+            gst_serializer.save(branch=branch)
+            return Response({'message': 'Gst updated successfully.'}, status=status.HTTP_201_CREATED)
+        return Response(gst_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method=="GET":
+        gst_serializer1=GstSerializer(gst)
+    return Response(gst_serializer1.data)
+
+
+@api_view(['DELETE'])
+def delete_gst(request, branch_pk, gst_pk):
+    branch = get_object_or_404(Branch, id=branch_pk)
+    gst = get_object_or_404(Gst, id=gst_pk)
+    gst.delete()
+    return Response({"message": "Msme deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
