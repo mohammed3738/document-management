@@ -322,7 +322,7 @@ def create_bank_details(request,pk):
 def update_bank(request,pk,bank_pk):
     company = get_object_or_404(Company, id=pk)
     bank = get_object_or_404(BankDetails, id=bank_pk)
-    bank_serializer = BankSerializer(dat=request.data, instance=bank)
+    bank_serializer = BankSerializer(data=request.data, instance=bank)
 
     if request.method=="POST":
         if bank_serializer.is_valid():
@@ -350,7 +350,7 @@ def delete_bank(request,pk,bank_pk):
 def create_aadhar(request, pk):
     company = get_object_or_404(Company, id=pk)
     if request.method=="POST":
-        aadhar_serializer = AadharSerializer(request.data)
+        aadhar_serializer = AadharSerializer(data=request.data)
         if aadhar_serializer.is_valid():
          
             aadhar_serializer.save(company=company)
@@ -366,7 +366,7 @@ def update_aadhar(request, pk, aadhar_pk):
     aadhar = get_object_or_404(UdyamAadhar, id=aadhar_pk)
 
     if request.method == "POST":
-        aadhar_serializer = AadharSerializer(request.data, instance=aadhar)
+        aadhar_serializer = AadharSerializer(data=request.data, instance=aadhar)
         if aadhar_serializer.is_valid():
         
             aadhar_serializer.save(company=company)
@@ -387,7 +387,7 @@ def delete_aadhar(request, pk, aadhar_pk):
 def create_tan(request,pk):
     company = get_object_or_404(Company, id=pk)
     if request.method=="POST":
-        tan_serializer = TanSerializer(request.data)
+        tan_serializer = TanSerializer(data=request.data)
         if tan_serializer.is_valid():
 
             tan_serializer.save(company=company)
@@ -401,7 +401,7 @@ def create_tan(request,pk):
 def update_tan(request, pk, tan_pk):
     company = get_object_or_404(Company, id=pk)
     tan = get_object_or_404(Tan, id=tan_pk)
-    tan_serializer = TanSerializer(request.data, instance=tan)
+    tan_serializer = TanSerializer(data=request.data, instance=tan)
 
     if request.method == "POST":
         if tan_serializer.is_valid():
@@ -428,7 +428,7 @@ def delete_tan(request, pk, tan_pk):
 def create_ptrc(request,pk):
     company = get_object_or_404(Company, id=pk)
     if request.method=="POST":
-        ptrc_serializer = PtrcSerializer(request.data)
+        ptrc_serializer = PtrcSerializer(data=request.data)
         if ptrc_serializer.is_valid():
 
             ptrc_serializer.save(company=company)
@@ -442,7 +442,7 @@ def create_ptrc(request,pk):
 def update_ptrc(request, pk, ptrc_pk):
     company = get_object_or_404(Company, id=pk)
     ptrc = get_object_or_404(Ptrc, id=ptrc_pk)
-    ptrc_serializer = PtrcSerializer(request.data, instance=ptrc)
+    ptrc_serializer = PtrcSerializer(data=request.data, instance=ptrc)
 
     if request.method == "POST":
         if ptrc_serializer.is_valid():
@@ -470,7 +470,7 @@ def delete_ptrc(request, pk, ptrc_pk):
 def create_ptec(request,pk):
     company = get_object_or_404(Company, id=pk)
     if request.method=="POST":
-        ptec_serializer = PtecSerializer(request.data)
+        ptec_serializer = PtecSerializer(data=request.data)
         if ptec_serializer.is_valid():
 
             ptec_serializer.save(company=company)
@@ -484,7 +484,7 @@ def create_ptec(request,pk):
 def update_ptec(request, pk, ptec_pk):
     company = get_object_or_404(Company, id=pk)
     ptec = get_object_or_404(Ptec, id=ptec_pk)
-    ptec_serializer = PtecSerializer(request.data, instance=ptec)
+    ptec_serializer = PtecSerializer(data=request.data, instance=ptec)
 
     if request.method == "POST":
         if ptec_serializer.is_valid():
@@ -509,7 +509,7 @@ def delete_ptec(request, pk, ptec_pk):
 def create_pan(request,pk):
     company = get_object_or_404(Company, id=pk)
     if request.method=="POST":
-        pan_serializer = PanSerializer(request.data)
+        pan_serializer = PanSerializer(data=request.data)
         if pan_serializer.is_valid():
 
             pan_serializer.save(company=company)

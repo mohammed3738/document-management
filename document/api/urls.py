@@ -28,7 +28,7 @@ urlpatterns = [
     #Bank urls
     path('create-bank/<int:pk>', views.create_bank_details,name="create-bank"),
     path('update-bank/<int:pk>/<int:bank_pk>', views.update_bank,name="update-bank"),
-    path('delete-bank/<int:pk>/<int:bank_pk>', views.delete_owner,name="delete-owner"),
+    path('delete-bank/<int:pk>/<int:bank_pk>', views.delete_owner,name="delete-bank"),
     #Aadhar urls
     path('create-aadhar/<int:pk>', views.create_aadhar,name="create-aadhar"),
     path('update-aadhar/<int:pk>/<int:aadhar_pk>', views.update_aadhar,name="update-aadhar"),
