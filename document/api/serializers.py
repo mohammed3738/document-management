@@ -76,6 +76,13 @@ class GstSerializer(ModelSerializer):
     class Meta:
         model = Gst
         fields = ['id','gst_number','gst_login','gst_password','remarks','filling_freq','attachment']
+
+
+class SalesInvoiceForm(ModelSerializer):
+    class Meta:
+        model=SalesInvoice
+        fields = ['id','party_name','month','invoice_no','invoice_date','amount','cgst','sgst','tds','tcs','in_amount','attach_invoice','attach_eway']
+    
 # class CompanySerializer(ModelSerializer):
 
 #     class Meta:
