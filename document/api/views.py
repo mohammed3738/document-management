@@ -372,6 +372,14 @@ def update_aadhar(request, pk, aadhar_pk):
             aadhar_serializer.save(company=company)
             return Response({'message': 'Udhyam Aadhar updated successfully.'}, status=status.HTTP_201_CREATED)
         return Response(aadhar_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+  
+
+
+
+
+
     return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 @api_view(['DELETE'])
@@ -493,7 +501,7 @@ def update_ptec(request, pk, ptec_pk):
             return Response({'message': 'Ptrc updated successfully.'}, status=status.HTTP_201_CREATED)
         return Response(ptec_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     elif request.method=="GET":
-        ptec_serializer1=PtrcSerializer(ptec)
+        ptec_serializer1=PtecSerializer(ptec)
     return Response(ptec_serializer1.data)
 
 
@@ -523,7 +531,7 @@ def create_pan(request,pk):
 def update_pan(request, pk, pan_pk):
     company = get_object_or_404(Company, id=pk)
     pan = get_object_or_404(Pan, id=pan_pk)
-    pan_serializer = PtecSerializer(data=request.data, instance=pan)
+    pan_serializer = PanSerializer(data=request.data, instance=pan)
 
     if request.method == "POST":
         if pan_serializer.is_valid():
