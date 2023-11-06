@@ -372,7 +372,10 @@ def update_aadhar(request, pk, aadhar_pk):
             aadhar_serializer.save(company=company)
             return Response({'message': 'Udhyam Aadhar updated successfully.'}, status=status.HTTP_201_CREATED)
         return Response(aadhar_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    elif request.method=="GET":
+        aadhar_serializer1 = AadharSerializer(aadhar)
+
+    return Response(aadhar_serializer1.data)
 
 @api_view(['DELETE'])
 def delete_aadhar(request, pk, aadhar_pk):

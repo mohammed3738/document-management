@@ -16,7 +16,7 @@ class CompanySerializer(ModelSerializer):
 class UserSerializer(ModelSerializer):
     class Meta:
         model=CustomUser
-        fields = ['username', 'contact_number', 'email','password']
+        fields = ['id','username', 'contact_number', 'email','password']
 
 
 class BranchSerializer(ModelSerializer):
