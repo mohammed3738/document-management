@@ -217,3 +217,58 @@ class SalesInvoice(models.Model):
 
     def __str__(self):
         return self.invoice_no
+    
+
+
+class CreditNote(models.Model):
+    branch = models.ForeignKey(Branch,on_delete=models.CASCADE,null=True, blank=True)
+    sales_in = models.ForeignKey(SalesInvoice,on_delete=models.CASCADE,null=True, blank=True)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
+    month = models.DateField()
+    party_name = models.CharField(max_length=250)
+    invoice_no = models.CharField(max_length=255)
+    invoice_date = models.DateField()
+    amount = models.CharField(max_length=200)
+    cgst = models.CharField(max_length=255)
+    sgst = models.CharField(max_length=255)
+    tds = models.CharField(max_length=255)
+    tcs = models.CharField(max_length=255)
+    cr_amount = models.CharField(max_length=255)
+    attach_invoice = models.FileField()
+    attach_eway = models.FileField()    
+
+    
+    def __str__(self):
+        return self.invoice_no
+    
+
+class BankStatement(models.Model):
+    company = models.ForeignKey(Company,on_delete=models.CASCADE,null=True, blank=True)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
+    month = models.DateField()
+    year = models.DateField()
+    attachment = models.FileField()
+
+    def __str__(self):
+        return self.month.strftime("%B")
+    
+
+class InterestCertificate(models.Model):
+    company = models.ForeignKey(Company,on_delete=models.CASCADE,null=True, blank=True)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
+    month = models.DateField()
+    year = models.DateField()
+    attachment = models.FileField()
+
+    def __str__(self):
+        return self.month.strftime("%B")
+    
+class AssetsPurchasedBill(models.Model):
+    company = models.ForeignKey(Company,on_delete=models.CASCADE,null=True, blank=True)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
+    month = models.DateField()
+    year = models.DateField()
+    attachment = models.FileField()
+
+    def __str__(self):
+        return self.month.strftime("%B")

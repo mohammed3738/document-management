@@ -78,11 +78,32 @@ class GstSerializer(ModelSerializer):
         fields = ['id','gst_number','gst_login','gst_password','remarks','filling_freq','attachment']
 
 
-class SalesInvoiceForm(ModelSerializer):
+class SalesInvoiceSerializer(ModelSerializer):
     class Meta:
         model=SalesInvoice
         fields = ['id','party_name','month','invoice_no','invoice_date','amount','cgst','sgst','tds','tcs','in_amount','attach_invoice','attach_eway']
-    
+
+
+class CreditNoteSerializer(ModelSerializer):
+    class Meta:
+        model=CreditNote
+        fields = ['id','party_name','month','invoice_no','invoice_date','amount','cgst','sgst','tds','tcs','cr_amount','attach_invoice','attach_eway']
+
+class BankStatementSerializer(ModelSerializer):
+    class Meta:
+        model = BankStatement
+        fields = ['id','month', 'year', 'attachment']  
+
+
+class InterestCertificateSerializer(ModelSerializer):
+    class Meta:
+        model = InterestCertificate
+        fields = ['id','month', 'year', 'attachment']
+
+class AssetsPurchasedSerializer(ModelSerializer):
+    class Meta:
+        model = AssetsPurchasedBill
+        fields = ['month', 'year', 'attachment']
 # class CompanySerializer(ModelSerializer):
 
 #     class Meta:

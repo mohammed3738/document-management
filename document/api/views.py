@@ -255,6 +255,24 @@ def delete_branch(request,pk,branch_pk):
     return Response({"message": "Branch deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
 
 
+@api_view(['GET'])
+def branch_details(request,branch_pk):
+    branch = Branch.objects.get(id=branch_pk)
+    gst_list = Gst.objects.filter(branch=branch)
+
+    # print(owner_serializer.id)
+    gst_serializer = GstSerializer(gst_list,many=True)
+
+
+    data = {
+        "gst": gst_serializer.data,
+  
+    }
+    return Response(data)
+
+
+
+
 # *******************Owner details views*************************
 
  
@@ -625,3 +643,188 @@ def delete_gst(request, branch_pk, gst_pk):
     gst = get_object_or_404(Gst, id=gst_pk)
     gst.delete()
     return Response({"message": "Msme deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
+
+
+# ************sales invoice views***************
+
+@api_view(['POST'])
+def create_sales_invoice(request,branch_pk):
+    branch = get_object_or_404(Branch, id=branch_pk)
+    if request.method=="POST":
+        sales_serializer = SalesInvoiceSerializer(data=request.data)
+        if sales_serializer.is_valid():
+
+            sales_serializer.save(branch=branch)
+            return Response({'message': 'Sales Invoice created successfully.'}, status=status.HTTP_201_CREATED)
+
+        return Response(sales_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+
+@api_view(['POST','GET'])
+def update_sales_invoice(request, branch_pk, sales_pk):
+    branch = get_object_or_404(Branch, id=branch_pk)
+    sales = get_object_or_404(SalesInvoice, id=sales_pk)
+    sales_serializer = SalesInvoiceSerializer(data=request.data, instance=sales)
+
+    if request.method == "POST":
+        if sales_serializer.is_valid():
+        
+            sales_serializer.save(branch=branch)
+            return Response({'message': 'Sales Invoice updated successfully.'}, status=status.HTTP_201_CREATED)
+        return Response(sales_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method=="GET":
+        sales_serializer1=SalesInvoiceSerializer(sales)
+    return Response(sales_serializer1.data)
+
+
+@api_view(['DELETE'])
+def delete_sales_invoice(request, branch_pk, sales_pk):
+    branch = get_object_or_404(Branch, id=branch_pk)
+    sales = get_object_or_404(SalesInvoice, id=sales_pk)
+    sales.delete()
+    return Response({"message": "Sales Invoice deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
+
+# ***************credit note****************
+
+
+
+
+# ******************bank statement*****************
+
+@api_view(['POST'])
+def create_bank_statement(request,pk):
+    company = get_object_or_404(Company, id=pk)
+    if request.method=="POST":
+        bank_statement_serializer = BankStatementSerializer(data=request.data)
+        if bank_statement_serializer.is_valid():
+
+            bank_statement_serializer.save(company=company)
+            return Response({'message': 'Bank Statement created successfully.'}, status=status.HTTP_201_CREATED)
+
+        return Response(bank_statement_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+
+@api_view(['POST','GET'])
+def update_bank_statement(request, pk, bs_pk):
+    company = get_object_or_404(Company, id=pk)
+    bank_statement = get_object_or_404(BankStatement, id=bs_pk)
+    bs_serializer = BankStatementSerializer(data=request.data, instance=bank_statement)
+
+    if request.method == "POST":
+        if bs_serializer.is_valid():
+        
+            bs_serializer.save(company=company)
+            return Response({'message': 'Bank Statement updated successfully.'}, status=status.HTTP_201_CREATED)
+        return Response(bs_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method=="GET":
+        bs_serializer1=BankStatementSerializer(bank_statement)
+    return Response(bs_serializer1.data)
+
+
+@api_view(['DELETE'])
+def delete_bank_statement(request, pk, bs_pk):
+    company = get_object_or_404(Company, id=pk)
+    bank_statement = get_object_or_404(BankStatement, id=bs_pk)
+    bank_statement.delete()
+    return Response({"message": "Bank Statement deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
+
+# *************investment certificate******************
+
+@api_view(['POST'])
+def create_interest_certificate(request,pk):
+    company = get_object_or_404(Company, id=pk)
+    if request.method=="POST":
+        interest_certificate_serializer = InterestCertificateSerializer(data=request.data)
+        if interest_certificate_serializer.is_valid():
+
+            interest_certificate_serializer.save(company=company)
+            return Response({'message': 'Interest Certificate created successfully.'}, status=status.HTTP_201_CREATED)
+
+        return Response(interest_certificate_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+@api_view(['POST','GET'])
+def update_interest_certificate(request, pk, ic_pk):
+    company = get_object_or_404(Company, id=pk)
+    interest_certificate = get_object_or_404(InterestCertificate, id=ic_pk)
+    ic_serializer = InterestCertificateSerializer(data=request.data, instance=interest_certificate)
+
+    if request.method == "POST":
+        if ic_serializer.is_valid():
+        
+            ic_serializer.save(company=company)
+            return Response({'message': 'Interest updated successfully.'}, status=status.HTTP_201_CREATED)
+        return Response(ic_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method=="GET":
+        ic_serializer1=InterestCertificateSerializer(interest_certificate)
+    return Response(ic_serializer1.data)
+
+
+@api_view(['DELETE'])
+def delete_interest_certificate(request, pk, ic_pk):
+    company = get_object_or_404(Company, id=pk)
+    interest_certificate = get_object_or_404(InterestCertificate, id=ic_pk)
+    interest_certificate.delete()
+    return Response({"message": "Interest Certificate deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
+
+# *************Asset Purchased******************
+
+@api_view(['POST'])
+def create_asset_purchased(request,pk):
+    company = get_object_or_404(Company, id=pk)
+    if request.method=="POST":
+        asset_purchased_serializer = AssetsPurchasedSerializer(data=request.data)
+        if asset_purchased_serializer.is_valid():
+
+            asset_purchased_serializer.save(company=company)
+            return Response({'message': 'Asset Purchased created successfully.'}, status=status.HTTP_201_CREATED)
+
+        return Response(asset_purchased_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+@api_view(['POST','GET'])
+def update_asset_purchased(request, pk, ap_pk):
+    company = get_object_or_404(Company, id=pk)
+    asset_purchased = get_object_or_404(AssetsPurchasedBill, id=ap_pk)
+    ap_serializer = AssetsPurchasedSerializer(data=request.data, instance=asset_purchased)
+
+    if request.method == "POST":
+        if ap_serializer.is_valid():
+        
+            ap_serializer.save(company=company)
+            return Response({'message': 'Asset Purchased successfully.'}, status=status.HTTP_201_CREATED)
+        return Response(ap_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method=="GET":
+        ap_serializer1=AssetsPurchasedSerializer(asset_purchased)
+    return Response(ap_serializer1.data)
+
+@api_view(['DELETE'])
+def delete_asset_purchased(request, pk, ap_pk):
+    company = get_object_or_404(Company, id=pk)
+    asset_purchased = get_object_or_404(AssetsPurchasedBill, id=ap_pk)
+    asset_purchased.delete()
+    return Response({"message": "Asset Purchased deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+    
+# @api_view(['POST'])
+# def create_sales_credit(request,branch_pk,sales_pk):
+#     branch = get_object_or_404(Branch, id=branch_pk)
+#     sales = get_object_or_404(SalesInvoice, id=sales_pk)
+#     if request.method=="POST":
+#         credit_serializer = CreditNoteSerializer(data=request.data)
+#         if sales_serializer.is_valid():
+
+#             sales_serializer.save(branch=branch)
+#             return Response({'message': 'Sales Invoice created successfully.'}, status=status.HTTP_201_CREATED)
+
+#         return Response(sales_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)

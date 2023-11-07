@@ -21,6 +21,10 @@ urlpatterns = [
     path('create-branch/<int:pk>', views.create_branch,name="create-branch"),
     path('update-branch/<int:pk>/<int:branch_pk>', views.update_branch,name="update-branch"),
     path('delete-branch/<int:pk>/<int:branch_pk>', views.delete_branch,name="delete-branch"),
+
+    # branch detail
+    path('branch-details/<int:branch_pk>', views.branch_details,name="branch-details"),
+
     #Owner Urls
     path('create-owner/<int:pk>', views.create_owner,name="create-owner"),
     path('update-owner/<int:pk>/<int:owner_pk>', views.update_owner,name="update-owner"),
@@ -58,8 +62,27 @@ urlpatterns = [
     path('update-gst/<int:branch_pk>/<int:gst_pk>', views.update_gst,name="update-gst"),
     path('delete-gst/<int:branch_pk>/<int:gst_pk>', views.delete_gst,name="delete-gst"),
 
+    # sales invoice
+    path('create-sales/<int:branch_pk>',views.create_sales_invoice,name="create-sales"),
+    path('edit-sales/<int:branch_pk>/<int:sales_pk>',views.update_sales_invoice,name="edit-sales"),
+    path('delete-sales/<int:branch_pk>/<int:sales_pk>',views.delete_sales_invoice,name="delete-sales"),
+
 
     # path('notes/<int:pk>', views.get_single_note,name="notes"),
+    # bank statement 
+    path('create-bank-statement/<int:pk>', views.create_bank_statement,name="create-bank-statement"),
+    path('update-bank-statement/<int:pk>/<int:bs_pk>', views.update_bank_statement,name="update-bank-statement"),
+    path('delete-bank-statement/<int:pk>/<int:bs_pk>', views.delete_bank_statement,name="delete-bank-statement"),
+
+    # investment certificate
+    path('create-interest-certificate/<int:pk>', views.create_interest_certificate,name="create-interest-certificate"),
+    path('update-interest-certificate/<int:pk>/<int:ic_pk>', views.update_interest_certificate,name="update-interest-certificate"),
+    path('delete-interest-certificate/<int:pk>/<int:ic_pk>', views.delete_interest_certificate,name="delete-interest-certificate"),   
+
+    # Asset Purchased
+    path('create-asset-purchased/<int:pk>', views.create_asset_purchased,name="create-asset-purchased"),
+    path('update-asset-purchased/<int:pk>/<int:ic_pk>', views.update_asset_purchased,name="update-asset-purchased"),
+    path('delete-asset-purchased/<int:pk>/<int:ic_pk>', views.delete_asset_purchased,name="delete-asset-purchased"),   
     
 ]
 
