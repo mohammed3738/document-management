@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+import datetime
+from django.core.validators import MaxValueValidator, MinValueValidator
 # Create your models here.
 
 filing =[
@@ -242,11 +244,32 @@ class CreditNote(models.Model):
         return self.invoice_no
     
 
+month = [
+        ('janauary','Janauary'),
+		('february','February'),
+		('march','March'),
+		('april','April'),
+		('may','May'),
+		('june','June'),
+		('july','July'),
+		('august','August'),
+		('september','September'),
+		('october','October'),
+		('november','November'),
+		('december','December')		]
+
+
+def current_year():
+    return datetime.date.today().year
+
+def max_value_current_year(value):
+    return MaxValueValidator(current_year())(value)  
+
 class BankStatement(models.Model):
     company = models.ForeignKey(Company,on_delete=models.CASCADE,null=True, blank=True)
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
-    month = models.DateField()
-    year = models.DateField()
+    month = models.CharField(max_length=50,choices=month)
+    year = models.IntegerField(('year'), validators=[MinValueValidator(2018), max_value_current_year])   
     attachment = models.FileField()
 
     def __str__(self):
@@ -256,8 +279,8 @@ class BankStatement(models.Model):
 class InterestCertificate(models.Model):
     company = models.ForeignKey(Company,on_delete=models.CASCADE,null=True, blank=True)
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
-    month = models.DateField()
-    year = models.DateField()
+    month = models.CharField(max_length=50,choices=month)
+    year = models.IntegerField(('year'), validators=[MinValueValidator(2018), max_value_current_year])
     attachment = models.FileField()
 
     def __str__(self):
@@ -266,9 +289,12 @@ class InterestCertificate(models.Model):
 class AssetsPurchasedBill(models.Model):
     company = models.ForeignKey(Company,on_delete=models.CASCADE,null=True, blank=True)
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
-    month = models.DateField()
-    year = models.DateField()
+    month = models.CharField(max_length=50,choices=month)
+    year = models.IntegerField(('year'), validators=[MinValueValidator(2018), max_value_current_year])
     attachment = models.FileField()
 
     def __str__(self):
         return self.month.strftime("%B")
+    
+def year_choices():
+    return [(r,r) for r in range(1984, datetime.date.today().year+1)]
