@@ -81,8 +81,8 @@ urlpatterns = [
 
     # Asset Purchased
     path('create-asset-purchased/<int:pk>', views.create_asset_purchased,name="create-asset-purchased"),
-    path('update-asset-purchased/<int:pk>/<int:ic_pk>', views.update_asset_purchased,name="update-asset-purchased"),
-    path('delete-asset-purchased/<int:pk>/<int:ic_pk>', views.delete_asset_purchased,name="delete-asset-purchased"),   
+    path('update-asset-purchased/<int:pk>/<int:ap_pk>', views.update_asset_purchased,name="update-asset-purchased"),
+    path('delete-asset-purchased/<int:pk>/<int:ap_pk>', views.delete_asset_purchased,name="delete-asset-purchased"),   
 
     # Loan Voucher
     path('create-loan-voucher/<int:pk>', views.create_loan_voucher,name="create-loan-voucher"),
