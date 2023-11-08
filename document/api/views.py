@@ -110,6 +110,9 @@ def company_details(request,pk):
     ptec_list = Ptec.objects.filter(company=company)
     pan_list = Pan.objects.filter(company=company)
     msme_list = Msme.objects.filter(company=company)
+    bank_statement = BankStatement.objects.filter(company=company)
+    interest_certificate = InterestCertificate.objects.filter(company=company)
+    assest_purchased = AssetsPurchasedBill.objects.filter(company=company)
     # print(owner_serializer.id)
     owner_serializer = OwnerSerializer(owner_list,many=True)
     branch_serializer = BranchSerializer(branch_list,many=True)
@@ -121,6 +124,9 @@ def company_details(request,pk):
     ptec_serializer = PtecSerializer(ptec_list,many=True)
     pan_serializer = PanSerializer(pan_list,many=True)
     msme_serializer = MsmeSerializer(msme_list,many=True)
+    bank_statement_serializer = BankStatementSerializer(bank_statement,many=True)
+    interest_certificate_serializer = InterestCertificateSerializer(interest_certificate,many=True)
+    assest_purchased_serializer = AssetsPurchasedSerializer(assest_purchased,many=True)
 
     data = {
         "owners": owner_serializer.data,
@@ -132,7 +138,10 @@ def company_details(request,pk):
         "ptrc":ptrc_serializer.data,
         "ptec":ptec_serializer.data,
         "pan":pan_serializer.data,
-        "msme":msme_serializer.data
+        "msme":msme_serializer.data,
+        "Bank_statement":bank_statement_serializer.data,
+        "interest_certificate":interest_certificate_serializer.data,
+        "assest_purchased":assest_purchased_serializer.data
     }
     return Response(data)
 
