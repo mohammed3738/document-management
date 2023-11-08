@@ -83,7 +83,23 @@ urlpatterns = [
     path('create-asset-purchased/<int:pk>', views.create_asset_purchased,name="create-asset-purchased"),
     path('update-asset-purchased/<int:pk>/<int:ic_pk>', views.update_asset_purchased,name="update-asset-purchased"),
     path('delete-asset-purchased/<int:pk>/<int:ic_pk>', views.delete_asset_purchased,name="delete-asset-purchased"),   
+
+    # Loan Voucher
+    path('create-loan-voucher/<int:pk>', views.create_loan_voucher,name="create-loan-voucher"),
+    path('update-loan-voucher/<int:pk>/<int:lv_pk>', views.update_loan_voucher,name="update-loan-voucher"),
+    path('delete-loan-voucher/<int:pk>/<int:lv_pk>', views.delete_loan_voucher,name="delete-loan-voucher"),   
+
+    # Tds Certificate
+    path('create-tds-certificate/<int:pk>', views.create_tds_certificate,name="create-tds-certificate"),
+    path('update-tds-certificate/<int:pk>/<int:tc_pk>', views.update_tds_certificate,name="update-tds-certificate"),
+    path('delete-tds-certificate/<int:pk>/<int:tc_pk>', views.delete_tds_certificate,name="delete-tds-certificate"),   
+
+    # Tds Certificate
+    path('create-as26/<int:pk>', views.create_as26,name="create-as26"),
+    path('update-as26/<int:pk>/<int:as_pk>', views.update_as26,name="update-as26"),
+    path('delete-as26/<int:pk>/<int:as_pk>', views.delete_as26,name="delete-as26"),   
     
+
 ]
 
 

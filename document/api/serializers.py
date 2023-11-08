@@ -103,7 +103,25 @@ class InterestCertificateSerializer(ModelSerializer):
 class AssetsPurchasedSerializer(ModelSerializer):
     class Meta:
         model = AssetsPurchasedBill
-        fields = ['month', 'year', 'attachment']
+        fields = ['id','month', 'year', 'attachment']
+
+class LoanVoucherSerializer(ModelSerializer):
+    class Meta:
+        model = LoanVoucher
+        fields = ['id','month', 'year', 'attachment']
+
+
+class TdsCertificateSerializer(ModelSerializer):
+    class Meta:
+        model = TdsCertificate
+        fields = ['id','month', 'year', 'attachment']
+
+
+class As26Serializer(ModelSerializer):
+    class Meta:
+        model = As26
+        fields = ['id','month', 'year', 'attachment']
+        
 # class CompanySerializer(ModelSerializer):
 
 #     class Meta:

@@ -113,6 +113,9 @@ def company_details(request,pk):
     bank_statement = BankStatement.objects.filter(company=company)
     interest_certificate = InterestCertificate.objects.filter(company=company)
     assest_purchased = AssetsPurchasedBill.objects.filter(company=company)
+    loan_voucher = LoanVoucher.objects.filter(company=company)
+    tds_certificate = TdsCertificate.objects.filter(company=company)
+    as26 = As26.objects.filter(company=company)
     # print(owner_serializer.id)
     owner_serializer = OwnerSerializer(owner_list,many=True)
     branch_serializer = BranchSerializer(branch_list,many=True)
@@ -127,6 +130,9 @@ def company_details(request,pk):
     bank_statement_serializer = BankStatementSerializer(bank_statement,many=True)
     interest_certificate_serializer = InterestCertificateSerializer(interest_certificate,many=True)
     assest_purchased_serializer = AssetsPurchasedSerializer(assest_purchased,many=True)
+    loan_voucher_serializer = LoanVoucherSerializer(loan_voucher,many=True)
+    tds_certificate_serializer = TdsCertificateSerializer(tds_certificate,many=True)
+    as26_serializer = As26Serializer(as26,many=True)
 
     data = {
         "owners": owner_serializer.data,
@@ -141,7 +147,10 @@ def company_details(request,pk):
         "msme":msme_serializer.data,
         "Bank_statement":bank_statement_serializer.data,
         "interest_certificate":interest_certificate_serializer.data,
-        "assest_purchased":assest_purchased_serializer.data
+        "assest_purchased":assest_purchased_serializer.data,
+        "loan_voucher":loan_voucher_serializer.data,
+        "tds_certificate":tds_certificate_serializer.data,
+        "as26":as26_serializer.data
     }
     return Response(data)
 
@@ -823,7 +832,131 @@ def delete_asset_purchased(request, pk, ap_pk):
     asset_purchased = get_object_or_404(AssetsPurchasedBill, id=ap_pk)
     asset_purchased.delete()
     return Response({"message": "Asset Purchased deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
-    
+
+
+
+# *******************loan voucher*******************
+
+@api_view(['POST'])
+def create_loan_voucher(request,pk):
+    company = get_object_or_404(Company, id=pk)
+    if request.method=="POST":
+        loan_voucher_serializer = LoanVoucherSerializer(data=request.data)
+        if loan_voucher_serializer.is_valid():
+
+            loan_voucher_serializer.save(company=company)
+            return Response({'message': 'Loan Voucher created successfully.'}, status=status.HTTP_201_CREATED)
+
+        return Response(loan_voucher_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+
+@api_view(['POST','GET'])
+def update_loan_voucher(request, pk, lv_pk):
+    company = get_object_or_404(Company, id=pk)
+    loan_voucher = get_object_or_404(LoanVoucher, id=lv_pk)
+    lv_serializer = LoanVoucherSerializer(data=request.data, instance=loan_voucher)
+
+    if request.method == "POST":
+        if lv_serializer.is_valid():
+        
+            lv_serializer.save(company=company)
+            return Response({'message': 'Loan Voucher successfully.'}, status=status.HTTP_201_CREATED)
+        return Response(lv_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method=="GET":
+        lv_serializer1=LoanVoucherSerializer(loan_voucher)
+    return Response(lv_serializer1.data)
+
+
+@api_view(['DELETE'])
+def delete_loan_voucher(request, pk, lv_pk):
+    company = get_object_or_404(Company, id=pk)
+    loan_voucher = get_object_or_404(LoanVoucher, id=lv_pk)
+    loan_voucher.delete()
+    return Response({"message": "Asset Purchased deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
+
+# *******************Tds Certificate*******************
+
+@api_view(['POST'])
+def create_tds_certificate(request,pk):
+    company = get_object_or_404(Company, id=pk)
+    if request.method=="POST":
+        tds_certificate_serializer = TdsCertificateSerializer(data=request.data)
+        if tds_certificate_serializer.is_valid():
+
+            tds_certificate_serializer.save(company=company)
+            return Response({'message': 'Tds Certificate created successfully.'}, status=status.HTTP_201_CREATED)
+
+        return Response(tds_certificate_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+@api_view(['POST','GET'])
+def update_tds_certificate(request, pk, tc_pk):
+    company = get_object_or_404(Company, id=pk)
+    tds_certificate = get_object_or_404(TdsCertificate, id=tc_pk)
+    tc_serializer = TdsCertificateSerializer(data=request.data, instance=tds_certificate)
+
+    if request.method == "POST":
+        if tc_serializer.is_valid():
+        
+            tc_serializer.save(company=company)
+            return Response({'message': 'Tds Certificate successfully.'}, status=status.HTTP_201_CREATED)
+        return Response(tc_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method=="GET":
+        tc_serializer1=TdsCertificateSerializer(tds_certificate)
+    return Response(tc_serializer1.data)
+
+
+@api_view(['DELETE'])
+def delete_tds_certificate(request, pk, tc_pk):
+    company = get_object_or_404(Company, id=pk)
+    tds_certificate = get_object_or_404(TdsCertificate, id=tc_pk)
+    tds_certificate.delete()
+    return Response({"message": "Tds Certificate deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
+
+# *******************As26*******************
+
+@api_view(['POST'])
+def create_as26(request,pk):
+    company = get_object_or_404(Company, id=pk)
+    if request.method=="POST":
+        as26_serializer = As26Serializer(data=request.data)
+        if as26_serializer.is_valid():
+
+            as26_serializer.save(company=company)
+            return Response({'message': 'As26 created successfully.'}, status=status.HTTP_201_CREATED)
+
+        return Response(as26_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+@api_view(['POST','GET'])
+def update_as26(request, pk, as_pk):
+    company = get_object_or_404(Company, id=pk)
+    as26 = get_object_or_404(As26, id=as_pk)
+    as26_serializer = As26Serializer(data=request.data, instance=as26)
+
+    if request.method == "POST":
+        if as26_serializer.is_valid():
+        
+            as26_serializer.save(company=company)
+            return Response({'message': 'As26 updated successfully.'}, status=status.HTTP_201_CREATED)
+        return Response(as26_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method=="GET":
+        as26_serializer1=As26Serializer(as26)
+    return Response(as26_serializer1.data)
+
+@api_view(['DELETE'])
+def delete_as26(request, pk, as_pk):
+    company = get_object_or_404(Company, id=pk)
+    as26 = get_object_or_404(As26, id=as_pk)
+    as26.delete()
+    return Response({"message": "As26 deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
 # @api_view(['POST'])
 # def create_sales_credit(request,branch_pk,sales_pk):
 #     branch = get_object_or_404(Branch, id=branch_pk)
@@ -837,3 +970,5 @@ def delete_asset_purchased(request, pk, ap_pk):
 
 #         return Response(sales_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 #     return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+

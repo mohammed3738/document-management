@@ -296,5 +296,39 @@ class AssetsPurchasedBill(models.Model):
     def __str__(self):
         return self.month.strftime("%B")
     
+
+
+class LoanVoucher(models.Model):
+    company = models.ForeignKey(Company,on_delete=models.CASCADE,null=True, blank=True)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
+    month = models.CharField(max_length=50,choices=month)
+    year = models.IntegerField(('year'), validators=[MinValueValidator(2018), max_value_current_year])
+    attachment = models.FileField()
+
+    def __str__(self):
+        return self.month.strftime("%B")
+    
+
+class TdsCertificate(models.Model):
+    company = models.ForeignKey(Company,on_delete=models.CASCADE,null=True, blank=True)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
+    month = models.CharField(max_length=50,choices=month)
+    year = models.IntegerField(('year'), validators=[MinValueValidator(2018), max_value_current_year])
+    attachment = models.FileField()
+
+    def __str__(self):
+        return self.month.strftime("%B")
+
+
+class As26(models.Model):
+    company = models.ForeignKey(Company,on_delete=models.CASCADE,null=True, blank=True)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
+    month = models.CharField(max_length=50,choices=month)
+    year = models.IntegerField(('year'), validators=[MinValueValidator(2018), max_value_current_year])
+    attachment = models.FileField()
+
+    def __str__(self):
+        return self.month.strftime("%B")
+
 def year_choices():
     return [(r,r) for r in range(1984, datetime.date.today().year+1)]
