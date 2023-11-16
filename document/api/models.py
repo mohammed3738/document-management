@@ -218,7 +218,7 @@ class SalesInvoice(models.Model):
 
 
     def __str__(self):
-        return self.invoice_no
+        return f"Credit Note {self.id} - {self.invoice_no}" if self.invoice_no else f"Credit Note {self.id} - No Invoice Number"
     
 
 
@@ -241,7 +241,7 @@ class CreditNote(models.Model):
 
     
     def __str__(self):
-        return self.invoice_no
+        return f"Credit Note {self.id} - {self.invoice_no}" if self.invoice_no else f"Credit Note {self.id} - No Invoice Number"
     
 
 month = [
@@ -330,5 +330,53 @@ class As26(models.Model):
     def __str__(self):
         return self.month.strftime("%B")
 
+
+
+
+
+types =[
+    ('mutual-fund','Mutual-Fund'),
+    ('equity','Equity'),
+    ('fd','Fd'),
+    ('others','Others'),
+]
+
+
+
+class InvestmentStatement(models.Model):
+    company = models.ForeignKey(Company,on_delete=models.CASCADE,null=True, blank=True)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
+    month = models.CharField(max_length=50,choices=month)
+    year = models.IntegerField(('year'), validators=[MinValueValidator(2018), max_value_current_year])
+    type=models.CharField(max_length=100, choices=types)
+    attachment = models.FileField()
+
+    def __str__(self):
+        return self.month.strftime("%B")
+    
 def year_choices():
     return [(r,r) for r in range(1984, datetime.date.today().year+1)]
+
+
+
+return_types=[
+    ('computation-of-income','Computation-Of-Income'),
+    ('financials','Financials'),
+    ('income-tax-form','Income-Tax-Form'),
+    ('income-tax-return','Income-Tax-Return'),
+    ('tax-audit','Tax-Audit'),
+    ('cma','CMA'),
+    ('auditors-report','Auditors-Report'),
+]
+
+class IncomeTaxReturn(models.Model):
+    company = models.ForeignKey(Company,on_delete=models.CASCADE,null=True, blank=True)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
+    financial_year = models.DateField()
+    return_type = models.CharField(max_length=100, choices=return_types)
+    attachment = models.FileField()
+
+
+    def __str__(self):
+        return self.return_type
+    

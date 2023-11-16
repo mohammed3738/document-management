@@ -121,7 +121,18 @@ class As26Serializer(ModelSerializer):
     class Meta:
         model = As26
         fields = ['id','month', 'year', 'attachment']
-        
+
+
+class InvestmentSerializer(ModelSerializer):
+    class Meta:
+        model = InvestmentStatement
+        fields = ['id','month', 'year', 'attachment', 'type']      
+
+class TaxReturnSerializer(ModelSerializer):
+    class Meta:
+        model = IncomeTaxReturn
+        fields = ['id','financial_year','return_type','attachment']       
+
 # class CompanySerializer(ModelSerializer):
 
 #     class Meta:

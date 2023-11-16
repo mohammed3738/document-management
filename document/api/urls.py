@@ -67,6 +67,14 @@ urlpatterns = [
     path('edit-sales/<int:branch_pk>/<int:sales_pk>',views.update_sales_invoice,name="edit-sales"),
     path('delete-sales/<int:branch_pk>/<int:sales_pk>',views.delete_sales_invoice,name="delete-sales"),
 
+    # Credit Note
+    path('create-credit-note/<int:branch_pk>/<int:sales_pk>',views.create_credit_note,name="create-credit-note"),
+    path('update-credit-note/<int:branch_pk>/<int:sales_pk>/<int:cr_pk>',views.update_credit_note,name="update-credit-note"),
+    path('delete-credit-note/<int:branch_pk>/<int:sales_pk>/<int:cr_pk>',views.delete_credit_note,name="delete-credit-note"),
+    path('view-credit-note/<int:branch_pk>/<int:sales_pk>',views.credit_note_view,name="view-credit-note"),
+    # path('edit-sales/<int:branch_pk>/<int:sales_pk>',views.update_sales_invoice,name="edit-sales"),
+    # path('delete-sales/<int:branch_pk>/<int:sales_pk>',views.delete_sales_invoice,name="delete-sales"),
+
 
     # path('notes/<int:pk>', views.get_single_note,name="notes"),
     # bank statement 
@@ -98,6 +106,16 @@ urlpatterns = [
     path('create-as26/<int:pk>', views.create_as26,name="create-as26"),
     path('update-as26/<int:pk>/<int:as_pk>', views.update_as26,name="update-as26"),
     path('delete-as26/<int:pk>/<int:as_pk>', views.delete_as26,name="delete-as26"),   
+
+    # Investment Statement
+    path('create-investment/<int:pk>', views.create_investment,name="create-investment"),
+    path('update-investment/<int:pk>/<int:is_pk>', views.update_investment,name="update-investment"),
+    path('delete-investment/<int:pk>/<int:is_pk>', views.delete_investment,name="delete-investment"),   
+
+    # Tax Return
+    path('create-tax-return/<int:pk>', views.create_tax_return,name="create-tax-return"),
+    path('update-tax-return/<int:pk>/<int:tr_pk>', views.update_tax_return,name="update-tax-return"),
+    path('delete-tax-return/<int:pk>/<int:tr_pk>', views.delete_tax_return,name="delete-tax-return"),   
     
 
 ]

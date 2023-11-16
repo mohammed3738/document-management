@@ -277,13 +277,16 @@ def delete_branch(request,pk,branch_pk):
 def branch_details(request,branch_pk):
     branch = Branch.objects.get(id=branch_pk)
     gst_list = Gst.objects.filter(branch=branch)
+    sales_list = SalesInvoice.objects.filter(branch=branch)
 
     # print(owner_serializer.id)
     gst_serializer = GstSerializer(gst_list,many=True)
+    sales_serializer = SalesInvoiceSerializer(sales_list,many=True)
 
 
     data = {
         "gst": gst_serializer.data,
+        "sales": sales_serializer.data,
   
     }
     return Response(data)
@@ -708,7 +711,64 @@ def delete_sales_invoice(request, branch_pk, sales_pk):
 
 # ***************credit note****************
 
+@api_view(['POST'])
+def create_credit_note(request,branch_pk,sales_pk):
+    branch = get_object_or_404(Branch, id=branch_pk)
+    sales = get_object_or_404(SalesInvoice, id=sales_pk)
+    if request.method=="POST":
+        credit_note_serializer = CreditNoteSerializer(data=request.data)
+        if credit_note_serializer.is_valid():
 
+            credit_note_serializer.save(branch=branch,sales_in=sales)
+            return Response({'message': 'Credit Note created successfully.'}, status=status.HTTP_201_CREATED)
+
+        return Response(credit_note_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+@api_view(['POST','GET'])
+def update_credit_note(request, branch_pk, sales_pk,cr_pk):
+    branch = get_object_or_404(Branch, id=branch_pk)
+    sales = get_object_or_404(SalesInvoice, id=sales_pk)
+    credit = get_object_or_404(CreditNote, id=cr_pk, branch=branch, sales_in=sales)
+    cr_note__serializer = CreditNoteSerializer(data=request.data, instance=credit)
+
+    if request.method == "POST":
+        if cr_note__serializer.is_valid():
+        
+            cr_note__serializer.save()
+            return Response({'message': 'Credit Note updated successfully.'}, status=status.HTTP_201_CREATED)
+        return Response(cr_note__serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method=="GET":
+        cr_note__serializer1=CreditNoteSerializer(credit)
+    return Response(cr_note__serializer1.data)
+
+
+@api_view(['DELETE'])
+def delete_credit_note(request, branch_pk, sales_pk,cr_pk):
+    branch = get_object_or_404(Branch, id=branch_pk)
+    sales = get_object_or_404(SalesInvoice, id=sales_pk)
+    credit = get_object_or_404(CreditNote, id=cr_pk, branch=branch, sales_in=sales)
+
+    credit.delete()
+    return Response({"message": "Credit Note deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['GET'])
+def credit_note_view(request,branch_pk,sales_pk):
+    branch = Branch.objects.get(id=branch_pk)
+    sales = SalesInvoice.objects.get(id=sales_pk)
+    cr_note = CreditNote.objects.filter(branch=branch,sales_in=sales)
+
+    # print(owner_serializer.id)
+    cr_note_serializer = CreditNoteSerializer(cr_note,many=True)
+
+
+    data = {
+        "credit": cr_note_serializer.data,
+  
+    }
+    return Response(data)
 
 
 # ******************bank statement*****************
@@ -956,6 +1016,86 @@ def delete_as26(request, pk, as_pk):
     as26 = get_object_or_404(As26, id=as_pk)
     as26.delete()
     return Response({"message": "As26 deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
+# ***************investment statement**************
+
+@api_view(['POST'])
+def create_investment(request,pk):
+    company = get_object_or_404(Company, id=pk)
+    if request.method=="POST":
+        investment_serializer = InvestmentSerializer(data=request.data)
+        if investment_serializer.is_valid():
+
+            investment_serializer.save(company=company)
+            return Response({'message': 'Investment Statement created successfully.'}, status=status.HTTP_201_CREATED)
+
+        return Response(investment_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+
+@api_view(['POST','GET'])
+def update_investment(request, pk, is_pk):
+    company = get_object_or_404(Company, id=pk)
+    investment = get_object_or_404(InvestmentStatement, id=is_pk)
+    investment_serializer = InvestmentSerializer(data=request.data, instance=investment)
+
+    if request.method == "POST":
+        if investment_serializer.is_valid():
+        
+            investment_serializer.save(company=company)
+            return Response({'message': 'Investment Statement updated successfully.'}, status=status.HTTP_201_CREATED)
+        return Response(investment_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method=="GET":
+        investment_serializer1=InvestmentSerializer(investment)
+    return Response(investment_serializer1.data)
+
+@api_view(['DELETE'])
+def delete_investment(request, pk, is_pk):
+    company = get_object_or_404(Company, id=pk)
+    investment = get_object_or_404(InvestmentStatement, id=is_pk)
+    investment.delete()
+    return Response({"message": "Investment Statement deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
+
+# ****************income tax return***************** 
+
+@api_view(['POST'])
+def create_tax_return(request,pk):
+    company = get_object_or_404(Company, id=pk)
+    if request.method=="POST":
+        tax_return_serializer = TaxReturnSerializer(data=request.data)
+        if tax_return_serializer.is_valid():
+
+            tax_return_serializer.save(company=company)
+            return Response({'message': 'Tax Return created successfully.'}, status=status.HTTP_201_CREATED)
+
+        return Response(tax_return_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+@api_view(['POST','GET'])
+def update_tax_return(request, pk, tr_pk):
+    company = get_object_or_404(Company, id=pk)
+    tax_return = get_object_or_404(IncomeTaxReturn, id=tr_pk)
+    tax_return_serializer = TaxReturnSerializer(data=request.data, instance=tax_return)
+
+    if request.method == "POST":
+        if tax_return_serializer.is_valid():
+        
+            tax_return_serializer.save(company=company)
+            return Response({'message': 'Tax Return updated successfully.'}, status=status.HTTP_201_CREATED)
+        return Response(tax_return_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method=="GET":
+        tax_return_serializer1=TaxReturnSerializer(tax_return)
+    return Response(tax_return_serializer1.data)
+
+@api_view(['DELETE'])
+def delete_tax_return(request, pk, tr_pk):
+    company = get_object_or_404(Company, id=pk)
+    tax_return = get_object_or_404(IncomeTaxReturn, id=tr_pk)
+    tax_return.delete()
+    return Response({"message": "Tax Return deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
 
 # @api_view(['POST'])
 # def create_sales_credit(request,branch_pk,sales_pk):
