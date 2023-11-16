@@ -89,6 +89,17 @@ class CreditNoteSerializer(ModelSerializer):
         model=CreditNote
         fields = ['id','party_name','month','invoice_no','invoice_date','amount','cgst','sgst','tds','tcs','cr_amount','attach_invoice','attach_eway']
 
+
+class PurchaseInvoiceSerializer(ModelSerializer):
+    class Meta:
+        model=PurchaseInvoice
+        fields = ['id','branch','party_name','month','invoice_no','invoice_date','amount','cgst','sgst','tds','tcs','in_amount','attach_invoice','attach_eway']
+
+class DebitNoteSerializer(ModelSerializer):
+    class Meta:
+        model=DebitNote
+        fields = ['id','party_name','month','invoice_no','invoice_date','amount','cgst','sgst','tds','tcs','cr_amount','attach_invoice','attach_eway']
+
 class BankStatementSerializer(ModelSerializer):
     class Meta:
         model = BankStatement

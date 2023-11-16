@@ -116,6 +116,8 @@ def company_details(request,pk):
     loan_voucher = LoanVoucher.objects.filter(company=company)
     tds_certificate = TdsCertificate.objects.filter(company=company)
     as26 = As26.objects.filter(company=company)
+    investment = InvestmentStatement.objects.filter(company=company)
+    tax = IncomeTaxReturn.objects.filter(company=company)
     # print(owner_serializer.id)
     owner_serializer = OwnerSerializer(owner_list,many=True)
     branch_serializer = BranchSerializer(branch_list,many=True)
@@ -133,6 +135,8 @@ def company_details(request,pk):
     loan_voucher_serializer = LoanVoucherSerializer(loan_voucher,many=True)
     tds_certificate_serializer = TdsCertificateSerializer(tds_certificate,many=True)
     as26_serializer = As26Serializer(as26,many=True)
+    investment_serializer = InvestmentSerializer(investment,many=True)
+    tax_serializer = TaxReturnSerializer(tax,many=True)
 
     data = {
         "owners": owner_serializer.data,
@@ -150,7 +154,9 @@ def company_details(request,pk):
         "assest_purchased":assest_purchased_serializer.data,
         "loan_voucher":loan_voucher_serializer.data,
         "tds_certificate":tds_certificate_serializer.data,
-        "as26":as26_serializer.data
+        "as26":as26_serializer.data,
+        "investment":investment_serializer.data,
+        "tax":tax_serializer.data
     }
     return Response(data)
 
@@ -277,15 +283,18 @@ def delete_branch(request,pk,branch_pk):
 def branch_details(request,branch_pk):
     branch = Branch.objects.get(id=branch_pk)
     gst_list = Gst.objects.filter(branch=branch)
+    purchase_list = PurchaseInvoice.objects.filter(branch=branch)
     sales_list = SalesInvoice.objects.filter(branch=branch)
 
     # print(owner_serializer.id)
     gst_serializer = GstSerializer(gst_list,many=True)
+    purchase_serializer = PurchaseInvoiceSerializer(purchase_list,many=True)
     sales_serializer = SalesInvoiceSerializer(sales_list,many=True)
 
 
     data = {
         "gst": gst_serializer.data,
+        "purchase": purchase_serializer.data,
         "sales": sales_serializer.data,
   
     }
@@ -770,6 +779,107 @@ def credit_note_view(request,branch_pk,sales_pk):
     }
     return Response(data)
 
+# *************purchase invoice views*************
+
+@api_view(['POST'])
+def create_purchase_invoice(request,branch_pk):
+    branch = get_object_or_404(Branch, id=branch_pk)
+    if request.method=="POST":
+        purchase_serializer = PurchaseInvoiceSerializer(data=request.data)
+        if purchase_serializer.is_valid():
+
+            purchase_serializer.save(branch=branch)
+            return Response({'message': 'Purchase Invoice created successfully.'}, status=status.HTTP_201_CREATED)
+
+        return Response(purchase_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+
+@api_view(['POST','GET'])
+def update_purchase_invoice(request, branch_pk, purchase_pk):
+    branch = get_object_or_404(Branch, id=branch_pk)
+    purchase = get_object_or_404(PurchaseInvoice, id=purchase_pk)
+    purchase_serializer = PurchaseInvoiceSerializer(data=request.data, instance=purchase)
+
+    if request.method == "POST":
+        if purchase_serializer.is_valid():
+        
+            purchase_serializer.save(branch=branch)
+            return Response({'message': 'Purchase Invoice updated successfully.'}, status=status.HTTP_201_CREATED)
+        return Response(purchase_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method=="GET":
+        purchase_serializer1=PurchaseInvoiceSerializer(purchase)
+    return Response(purchase_serializer1.data)
+
+
+@api_view(['DELETE'])
+def delete_purchase_invoice(request, branch_pk, purchase_pk):
+    branch = get_object_or_404(Branch, id=branch_pk)
+    purchase = get_object_or_404(PurchaseInvoice, id=purchase_pk)
+    purchase.delete()
+    return Response({"message": "Purchase Invoice deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
+
+# **************debit note************
+@api_view(['POST'])
+def create_debit_note(request,branch_pk,purchase_pk):
+    branch = get_object_or_404(Branch, id=branch_pk)
+    purchase = get_object_or_404(PurchaseInvoice, id=purchase_pk)
+    if request.method=="POST":
+        debit_note_serializer = DebitNoteSerializer(data=request.data)
+        if debit_note_serializer.is_valid():
+
+            debit_note_serializer.save(branch=branch,purchase_in=purchase)
+            return Response({'message': 'Credit Note created successfully.'}, status=status.HTTP_201_CREATED)
+
+        return Response(debit_note_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+@api_view(['POST','GET'])
+def update_credit_note(request, branch_pk, sales_pk,cr_pk):
+    branch = get_object_or_404(Branch, id=branch_pk)
+    sales = get_object_or_404(SalesInvoice, id=sales_pk)
+    credit = get_object_or_404(CreditNote, id=cr_pk, branch=branch, sales_in=sales)
+    cr_note__serializer = CreditNoteSerializer(data=request.data, instance=credit)
+
+    if request.method == "POST":
+        if cr_note__serializer.is_valid():
+        
+            cr_note__serializer.save()
+            return Response({'message': 'Credit Note updated successfully.'}, status=status.HTTP_201_CREATED)
+        return Response(cr_note__serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method=="GET":
+        cr_note__serializer1=CreditNoteSerializer(credit)
+    return Response(cr_note__serializer1.data)
+
+
+@api_view(['DELETE'])
+def delete_credit_note(request, branch_pk, sales_pk,cr_pk):
+    branch = get_object_or_404(Branch, id=branch_pk)
+    sales = get_object_or_404(SalesInvoice, id=sales_pk)
+    credit = get_object_or_404(CreditNote, id=cr_pk, branch=branch, sales_in=sales)
+
+    credit.delete()
+    return Response({"message": "Credit Note deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['GET'])
+def credit_note_view(request,branch_pk,sales_pk):
+    branch = Branch.objects.get(id=branch_pk)
+    sales = SalesInvoice.objects.get(id=sales_pk)
+    cr_note = CreditNote.objects.filter(branch=branch,sales_in=sales)
+
+    # print(owner_serializer.id)
+    cr_note_serializer = CreditNoteSerializer(cr_note,many=True)
+
+
+    data = {
+        "credit": cr_note_serializer.data,
+  
+    }
+    return Response(data)
 
 # ******************bank statement*****************
 

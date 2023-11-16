@@ -242,7 +242,52 @@ class CreditNote(models.Model):
     
     def __str__(self):
         return f"Credit Note {self.id} - {self.invoice_no}" if self.invoice_no else f"Credit Note {self.id} - No Invoice Number"
+
+
+
+class PurchaseInvoice(models.Model):
+    branch = models.ForeignKey(Branch,on_delete=models.CASCADE,null=True, blank=True)
     
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
+    party_name = models.CharField(max_length=250)
+    month = models.DateField(null=True, blank=True)
+    invoice_no = models.CharField(max_length=255,null=True, blank=True)
+    invoice_date = models.DateField(null=True, blank=True)
+    amount = models.CharField(max_length=200,null=True, blank=True)
+    cgst = models.CharField(max_length=255,null=True, blank=True)
+    sgst = models.CharField(max_length=255,null=True, blank=True)
+    tds = models.CharField(max_length=255,null=True, blank=True)
+    tcs = models.CharField(max_length=255,null=True, blank=True)
+    in_amount = models.CharField(max_length=255,null=True, blank=True)
+    attach_invoice = models.FileField()
+    attach_eway = models.FileField()
+
+
+    def __str__(self):
+        return f"Credit Note {self.id} - {self.invoice_no}" if self.invoice_no else f"Credit Note {self.id} - No Invoice Number"
+    
+
+
+class DebitNote(models.Model):
+    branch = models.ForeignKey(Branch,on_delete=models.CASCADE,null=True, blank=True)
+    purchase_in = models.ForeignKey(PurchaseInvoice,on_delete=models.CASCADE,null=True, blank=True)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
+    month = models.DateField()
+    party_name = models.CharField(max_length=250)
+    invoice_no = models.CharField(max_length=255)
+    invoice_date = models.DateField()
+    amount = models.CharField(max_length=200)
+    cgst = models.CharField(max_length=255)
+    sgst = models.CharField(max_length=255)
+    tds = models.CharField(max_length=255)
+    tcs = models.CharField(max_length=255)
+    cr_amount = models.CharField(max_length=255)
+    attach_invoice = models.FileField()
+    attach_eway = models.FileField()    
+
+    
+    def __str__(self):
+        return f"Credit Note {self.id} - {self.invoice_no}" if self.invoice_no else f"Credit Note {self.id} - No Invoice Number"
 
 month = [
         ('janauary','Janauary'),
