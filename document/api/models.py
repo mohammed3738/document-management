@@ -264,7 +264,7 @@ class PurchaseInvoice(models.Model):
 
 
     def __str__(self):
-        return f"Credit Note {self.id} - {self.invoice_no}" if self.invoice_no else f"Credit Note {self.id} - No Invoice Number"
+        return f"Purchase Invoice {self.id} - {self.invoice_no}" if self.invoice_no else f"Purchase Invoice {self.id} - No Invoice Number"
     
 
 
@@ -287,7 +287,7 @@ class DebitNote(models.Model):
 
     
     def __str__(self):
-        return f"Credit Note {self.id} - {self.invoice_no}" if self.invoice_no else f"Credit Note {self.id} - No Invoice Number"
+        return f"Debit Note {self.id} - {self.invoice_no}" if self.invoice_no else f"Debit Note {self.id} - No Invoice Number"
 
 month = [
         ('janauary','Janauary'),

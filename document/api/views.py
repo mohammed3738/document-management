@@ -831,52 +831,52 @@ def create_debit_note(request,branch_pk,purchase_pk):
         if debit_note_serializer.is_valid():
 
             debit_note_serializer.save(branch=branch,purchase_in=purchase)
-            return Response({'message': 'Credit Note created successfully.'}, status=status.HTTP_201_CREATED)
+            return Response({'message': 'Debit Note created successfully.'}, status=status.HTTP_201_CREATED)
 
         return Response(debit_note_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 @api_view(['POST','GET'])
-def update_credit_note(request, branch_pk, sales_pk,cr_pk):
+def update_debit_note(request, branch_pk, purchase_pk,db_pk):
     branch = get_object_or_404(Branch, id=branch_pk)
-    sales = get_object_or_404(SalesInvoice, id=sales_pk)
-    credit = get_object_or_404(CreditNote, id=cr_pk, branch=branch, sales_in=sales)
-    cr_note__serializer = CreditNoteSerializer(data=request.data, instance=credit)
+    purchase = get_object_or_404(PurchaseInvoice, id=purchase_pk)
+    debit = get_object_or_404(DebitNote, id=db_pk, branch=branch, purchase_in=purchase)
+    db_note__serializer = DebitNoteSerializer(data=request.data, instance=debit)
 
     if request.method == "POST":
-        if cr_note__serializer.is_valid():
+        if db_note__serializer.is_valid():
         
-            cr_note__serializer.save()
-            return Response({'message': 'Credit Note updated successfully.'}, status=status.HTTP_201_CREATED)
-        return Response(cr_note__serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            db_note__serializer.save()
+            return Response({'message': 'Debit Note updated successfully.'}, status=status.HTTP_201_CREATED)
+        return Response(db_note__serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     elif request.method=="GET":
-        cr_note__serializer1=CreditNoteSerializer(credit)
-    return Response(cr_note__serializer1.data)
+        db_note__serializer1=DebitNoteSerializer(debit)
+    return Response(db_note__serializer1.data)
 
 
 @api_view(['DELETE'])
-def delete_credit_note(request, branch_pk, sales_pk,cr_pk):
+def delete_debit_note(request, branch_pk, purchase_pk,db_pk):
     branch = get_object_or_404(Branch, id=branch_pk)
-    sales = get_object_or_404(SalesInvoice, id=sales_pk)
-    credit = get_object_or_404(CreditNote, id=cr_pk, branch=branch, sales_in=sales)
+    purchase = get_object_or_404(PurchaseInvoice, id=purchase_pk)
+    debit = get_object_or_404(DebitNote, id=db_pk, branch=branch, purchase_in=purchase)
 
-    credit.delete()
-    return Response({"message": "Credit Note deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+    debit.delete()
+    return Response({"message": "Debit Note deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(['GET'])
-def credit_note_view(request,branch_pk,sales_pk):
+def debit_note_view(request,branch_pk,purchase_pk):
     branch = Branch.objects.get(id=branch_pk)
-    sales = SalesInvoice.objects.get(id=sales_pk)
-    cr_note = CreditNote.objects.filter(branch=branch,sales_in=sales)
+    purchase = PurchaseInvoice.objects.get(id=purchase_pk)
+    db_note = DebitNote.objects.filter(branch=branch,purchase_in=purchase)
 
     # print(owner_serializer.id)
-    cr_note_serializer = CreditNoteSerializer(cr_note,many=True)
+    db_note_serializer = DebitNoteSerializer(db_note,many=True)
 
 
     data = {
-        "credit": cr_note_serializer.data,
+        "debit": db_note_serializer.data,
   
     }
     return Response(data)

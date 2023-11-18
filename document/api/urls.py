@@ -80,9 +80,9 @@ urlpatterns = [
 
     # Debit Note
     path('create-debit-note/<int:branch_pk>/<int:purchase_pk>',views.create_debit_note,name="create-debit-note"),
-    # path('update-debit-note/<int:branch_pk>/<int:purchase_pk>/<int:db_pk>',views.update_debit_note,name="update-debit-note"),
-    # path('delete-debit-note/<int:branch_pk>/<int:purchase_pk>/<int:db_pk>',views.delete_debit_note,name="delete-debit-note"),
-    # path('view-debit-note/<int:branch_pk>/<int:purchase_pk>',views.debit_note_view,name="view-debit-note"),
+    path('update-debit-note/<int:branch_pk>/<int:purchase_pk>/<int:db_pk>',views.update_debit_note,name="update-debit-note"),
+    path('delete-debit-note/<int:branch_pk>/<int:purchase_pk>/<int:db_pk>',views.delete_debit_note,name="delete-debit-note"),
+    path('view-debit-note/<int:branch_pk>/<int:purchase_pk>',views.debit_note_view,name="view-debit-note"),
     # path('edit-sales/<int:branch_pk>/<int:sales_pk>',views.update_sales_invoice,name="edit-sales"),
     # path('delete-sales/<int:branch_pk>/<int:sales_pk>',views.delete_sales_invoice,name="delete-sales"),
 
