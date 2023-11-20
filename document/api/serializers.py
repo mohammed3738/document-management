@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer
 from .models import *
-
+from rest_framework import serializers
 # class NoteSerializer(ModelSerializer):
 #     class Meta:
 #         model=["__all__"]
@@ -81,24 +81,26 @@ class GstSerializer(ModelSerializer):
 class SalesInvoiceSerializer(ModelSerializer):
     class Meta:
         model=SalesInvoice
-        fields = ['id','party_name','month','invoice_no','invoice_date','amount','cgst','sgst','tds','tcs','in_amount','attach_invoice','attach_eway']
+        fields = ['id','party_name','month','booking_date','is_reverse','invoice_no','invoice_date','amount','cgst','gst_per','sgst','tds','tcs','in_amount','attach_invoice','attach_eway']
 
 
 class CreditNoteSerializer(ModelSerializer):
     class Meta:
         model=CreditNote
-        fields = ['id','party_name','month','invoice_no','invoice_date','amount','cgst','sgst','tds','tcs','cr_amount','attach_invoice','attach_eway']
+        fields = ['id','party_name','month','invoice_no','invoice_date','amount','cgst','gst_per','sgst','tds','tcs','cr_amount','attach_invoice','attach_eway']
 
 
 class PurchaseInvoiceSerializer(ModelSerializer):
+    in_amount = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+
     class Meta:
         model=PurchaseInvoice
-        fields = ['id','branch','party_name','month','invoice_no','invoice_date','amount','cgst','sgst','tds','tcs','in_amount','attach_invoice','attach_eway']
+        fields = ['id','branch','party_name','booking_date','is_reverse','month','invoice_no','invoice_date','amount','cgst','gst_per','sgst','tds','tcs','in_amount','attach_invoice','attach_eway']
 
 class DebitNoteSerializer(ModelSerializer):
     class Meta:
         model=DebitNote
-        fields = ['id','party_name','month','invoice_no','invoice_date','amount','cgst','sgst','tds','tcs','cr_amount','attach_invoice','attach_eway']
+        fields = ['id','party_name','month','invoice_no','invoice_date','amount','cgst','gst_per','sgst','tds','tcs','cr_amount','attach_invoice','attach_eway']
 
 class BankStatementSerializer(ModelSerializer):
     class Meta:

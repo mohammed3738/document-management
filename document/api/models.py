@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 import datetime
+from django.utils import timezone
 from django.core.validators import MaxValueValidator, MinValueValidator
 # Create your models here.
 
@@ -204,15 +205,18 @@ class SalesInvoice(models.Model):
     branch = models.ForeignKey(Branch,on_delete=models.CASCADE,null=True, blank=True)
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
     party_name = models.CharField(max_length=250)
+    is_reverse = models.BooleanField(null=True,blank=True)
+    booking_date = models.DateField(auto_now_add=True,null=True,blank=True)
     month = models.DateField(null=True, blank=True)
     invoice_no = models.CharField(max_length=255,null=True, blank=True)
     invoice_date = models.DateField(null=True, blank=True)
-    amount = models.CharField(max_length=200,null=True, blank=True)
-    cgst = models.CharField(max_length=255,null=True, blank=True)
-    sgst = models.CharField(max_length=255,null=True, blank=True)
-    tds = models.CharField(max_length=255,null=True, blank=True)
-    tcs = models.CharField(max_length=255,null=True, blank=True)
-    in_amount = models.CharField(max_length=255,null=True, blank=True)
+    amount = models.IntegerField(null=True, blank=True)
+    gst_per=models.IntegerField(null=True,blank=True)
+    cgst = models.IntegerField(null=True, blank=True)
+    sgst = models.IntegerField(null=True, blank=True)
+    tds = models.IntegerField(null=True, blank=True)
+    tcs = models.IntegerField(null=True, blank=True)
+    in_amount = models.IntegerField(null=True, blank=True)
     attach_invoice = models.FileField()
     attach_eway = models.FileField()
 
@@ -230,12 +234,13 @@ class CreditNote(models.Model):
     party_name = models.CharField(max_length=250)
     invoice_no = models.CharField(max_length=255)
     invoice_date = models.DateField()
-    amount = models.CharField(max_length=200)
-    cgst = models.CharField(max_length=255)
-    sgst = models.CharField(max_length=255)
-    tds = models.CharField(max_length=255)
-    tcs = models.CharField(max_length=255)
-    cr_amount = models.CharField(max_length=255)
+    amount = models.IntegerField(null=True, blank=True)
+    gst_per=models.IntegerField(null=True,blank=True)
+    cgst = models.IntegerField(null=True, blank=True)
+    sgst = models.IntegerField(null=True, blank=True)
+    tds = models.IntegerField(null=True, blank=True)
+    tcs = models.IntegerField(null=True, blank=True)
+    cr_amount = models.IntegerField(null=True, blank=True)
     attach_invoice = models.FileField()
     attach_eway = models.FileField()    
 
@@ -246,19 +251,21 @@ class CreditNote(models.Model):
 
 
 class PurchaseInvoice(models.Model):
-    branch = models.ForeignKey(Branch,on_delete=models.CASCADE,null=True, blank=True)
-    
+    branch = models.ForeignKey(Branch,on_delete=models.CASCADE,null=True, blank=True)  
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
     party_name = models.CharField(max_length=250)
+    booking_date = models.DateField(auto_now_add=True, null=True,blank=True)
+    is_reverse = models.BooleanField(null=True,blank=True)
     month = models.DateField(null=True, blank=True)
     invoice_no = models.CharField(max_length=255,null=True, blank=True)
     invoice_date = models.DateField(null=True, blank=True)
-    amount = models.CharField(max_length=200,null=True, blank=True)
-    cgst = models.CharField(max_length=255,null=True, blank=True)
-    sgst = models.CharField(max_length=255,null=True, blank=True)
-    tds = models.CharField(max_length=255,null=True, blank=True)
-    tcs = models.CharField(max_length=255,null=True, blank=True)
-    in_amount = models.CharField(max_length=255,null=True, blank=True)
+    amount = models.IntegerField(null=True, blank=True)
+    gst_per=models.IntegerField(null=True, blank=True)
+    cgst = models.IntegerField(null=True, blank=True)
+    sgst = models.IntegerField(null=True, blank=True)
+    tds = models.IntegerField(null=True, blank=True)
+    tcs = models.IntegerField(null=True, blank=True)
+    in_amount = models.FloatField(null=True, blank=True)
     attach_invoice = models.FileField()
     attach_eway = models.FileField()
 
@@ -276,12 +283,13 @@ class DebitNote(models.Model):
     party_name = models.CharField(max_length=250)
     invoice_no = models.CharField(max_length=255)
     invoice_date = models.DateField()
-    amount = models.CharField(max_length=200)
-    cgst = models.CharField(max_length=255)
-    sgst = models.CharField(max_length=255)
-    tds = models.CharField(max_length=255)
-    tcs = models.CharField(max_length=255)
-    cr_amount = models.CharField(max_length=255)
+    amount = models.IntegerField(null=True, blank=True)
+    gst_per=models.IntegerField(null=True,blank=True)
+    cgst = models.IntegerField(null=True, blank=True)
+    sgst = models.IntegerField(null=True, blank=True)
+    tds = models.IntegerField(null=True, blank=True)
+    tcs = models.IntegerField(null=True, blank=True)
+    cr_amount = models.IntegerField(null=True, blank=True)
     attach_invoice = models.FileField()
     attach_eway = models.FileField()    
 
