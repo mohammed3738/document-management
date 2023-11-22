@@ -743,11 +743,41 @@ def update_sales_invoice(request, branch_pk, sales_pk):
     sales = get_object_or_404(SalesInvoice, id=sales_pk)
     sales_serializer = SalesInvoiceSerializer(data=request.data, instance=sales)
 
-    if request.method == "POST":
-        if sales_serializer.is_valid():
+    if request.method=="POST":
+        # sales_serializer = SalesInvoiceSerializer(data=request.data)
         
-            sales_serializer.save(branch=branch)
-            return Response({'message': 'Sales Invoice updated successfully.'}, status=status.HTTP_201_CREATED)
+        if sales_serializer.is_valid():
+            amount = sales_serializer.validated_data.get('amount')
+            cgst = sales_serializer.validated_data.get('cgst')
+            sgst = sales_serializer.validated_data.get('sgst')
+            tds = sales_serializer.validated_data.get('tds')
+            tcs = sales_serializer.validated_data.get('tcs')
+            gst_per = sales_serializer.validated_data.get('gst_per')
+
+            try:
+                amount = float(amount)
+                cgst = float(cgst)
+                sgst = float(sgst)
+                tds = float(tds)
+                tcs = float(tcs)
+                gst_per = float(gst_per)
+                print("Amount:", amount)
+                print("CGST:", cgst)
+                print("SGST:", sgst)
+                print("TDS:", tds)
+                print("TCS:", tcs)
+                # Calculate in_amount
+                in_amount = amount + cgst + gst_per + sgst + tcs - tds
+                print("Calculated in_amount:", in_amount)
+
+                # Update the serializer with the calculated in_amount
+                sales_serializer.validated_data['in_amount'] = in_amount
+                sales_instance = sales_serializer.save(branch=branch)
+
+                return Response({'message': 'Sales Invoice created successfully.', 'id': sales_instance.id}, status=status.HTTP_201_CREATED)
+            except ValueError:
+                return Response({'error': 'Invalid numeric values in input'}, status=status.HTTP_400_BAD_REQUEST)
+
         return Response(sales_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     elif request.method=="GET":
         sales_serializer1=SalesInvoiceSerializer(sales)
@@ -891,11 +921,44 @@ def update_purchase_invoice(request, branch_pk, purchase_pk):
     purchase = get_object_or_404(PurchaseInvoice, id=purchase_pk)
     purchase_serializer = PurchaseInvoiceSerializer(data=request.data, instance=purchase)
 
-    if request.method == "POST":
+    if request.method == 'POST':
+        # purchase_serializer = PurchaseInvoiceSerializer(data=request.data)
+
         if purchase_serializer.is_valid():
-        
-            purchase_serializer.save(branch=branch)
-            return Response({'message': 'Purchase Invoice updated successfully.'}, status=status.HTTP_201_CREATED)
+            # Extract values from the validated data
+            amount = purchase_serializer.validated_data.get('amount')
+            cgst = purchase_serializer.validated_data.get('cgst')
+            sgst = purchase_serializer.validated_data.get('sgst')
+            tds = purchase_serializer.validated_data.get('tds')
+            tcs = purchase_serializer.validated_data.get('tcs')
+            gst_per = purchase_serializer.validated_data.get('gst_per')
+
+            try:
+                amount = float(amount)
+                cgst = float(cgst)
+                sgst = float(sgst)
+                tds = float(tds)
+                tcs = float(tcs)
+                gst_per = float(gst_per)
+                print("Amount:", amount)
+                print("CGST:", cgst)
+                print("SGST:", sgst)
+                print("TDS:", tds)
+                print("TCS:", tcs)
+                # Calculate in_amount
+                in_amount = amount + cgst + gst_per + sgst + tcs - tds
+                print("Calculated in_amount:", in_amount)
+
+                # Update the serializer with the calculated in_amount
+                purchase_serializer.validated_data['in_amount'] = in_amount
+
+                # Save the instance
+                purchase_instance = purchase_serializer.save(branch=branch)
+
+                return Response({'message': 'Purchase Invoice created successfully.', 'id': purchase_instance.id}, status=status.HTTP_201_CREATED)
+            except ValueError:
+                return Response({'error': 'Invalid numeric values in input'}, status=status.HTTP_400_BAD_REQUEST)
+
         return Response(purchase_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     elif request.method=="GET":
         purchase_serializer1=PurchaseInvoiceSerializer(purchase)

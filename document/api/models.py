@@ -265,7 +265,7 @@ class PurchaseInvoice(models.Model):
     sgst = models.IntegerField(null=True, blank=True)
     tds = models.IntegerField(null=True, blank=True)
     tcs = models.IntegerField(null=True, blank=True)
-    in_amount = models.FloatField(null=True, blank=True)
+    in_amount = models.IntegerField(null=True, blank=True)
     attach_invoice = models.FileField()
     attach_eway = models.FileField()
 
