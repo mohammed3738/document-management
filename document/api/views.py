@@ -639,14 +639,18 @@ def delete_msme(request, pk, msme_pk):
 @api_view(['POST'])
 def create_gst(request,branch_pk):
     branch = get_object_or_404(Branch, id=branch_pk)
+    gst = Gst.objects.filter(branch=branch)
     if request.method=="POST":
-        gst_serializer = GstSerializer(data=request.data)
-        if gst_serializer.is_valid():
+        if len(gst) == 0:
+            gst_serializer = GstSerializer(data=request.data)
+            if gst_serializer.is_valid():
 
-            gst_serializer.save(branch=branch)
-            return Response({'message': 'Gst created successfully.'}, status=status.HTTP_201_CREATED)
+                gst_serializer.save(branch=branch)
+                return Response({'message': 'Gst created successfully.'}, status=status.HTTP_201_CREATED)
 
-        return Response(gst_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(gst_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'message': 'You can create gst only once',})
     return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
