@@ -8,6 +8,9 @@ from django.core.mail import send_mail
 from .forms import *
 from rest_framework import status
 
+from usermaster.models import *
+from usermaster.serializers import *
+
 
 # Create your views here.
 
@@ -118,7 +121,9 @@ def company_details(request,pk):
     as26 = As26.objects.filter(company=company)
     investment = InvestmentStatement.objects.filter(company=company)
     tax = IncomeTaxReturn.objects.filter(company=company)
-    # print(owner_serializer.id)
+    vendor = ClientVendor.objects.filter(company=company)
+    # filter ends here
+    
     owner_serializer = OwnerSerializer(owner_list,many=True)
     branch_serializer = BranchSerializer(branch_list,many=True)
     user_serializer = UserSerializer(user_list,many=True)
@@ -137,6 +142,7 @@ def company_details(request,pk):
     as26_serializer = As26Serializer(as26,many=True)
     investment_serializer = InvestmentSerializer(investment,many=True)
     tax_serializer = TaxReturnSerializer(tax,many=True)
+    vendor_serializer = VendorSerializer(vendor,many=True)
 
     data = {
         "owners": owner_serializer.data,
@@ -156,7 +162,8 @@ def company_details(request,pk):
         "tds_certificate":tds_certificate_serializer.data,
         "as26":as26_serializer.data,
         "investment":investment_serializer.data,
-        "tax":tax_serializer.data
+        "tax":tax_serializer.data,
+        "vendor":vendor_serializer.data,
     }
     return Response(data)
 
