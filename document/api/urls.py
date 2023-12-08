@@ -126,7 +126,10 @@ urlpatterns = [
     # Tax Return
     path('create-tax-return/<int:pk>', views.create_tax_return,name="create-tax-return"),
     path('update-tax-return/<int:pk>/<int:tr_pk>', views.update_tax_return,name="update-tax-return"),
-    path('delete-tax-return/<int:pk>/<int:tr_pk>', views.delete_tax_return,name="delete-tax-return"),   
+    path('delete-tax-return/<int:pk>/<int:tr_pk>', views.delete_tax_return,name="delete-tax-return"),  
+
+    
+     
     
 
 ]

@@ -861,40 +861,74 @@ def credit_note_view(request,branch_pk,sales_pk):
 @api_view(['POST'])
 def create_purchase_invoice(request, branch_pk):
     branch = get_object_or_404(Branch, id=branch_pk)
-
+    gst = Gst.objects.filter(branch=branch).first()
+    
     if request.method == 'POST':
         purchase_serializer = PurchaseInvoiceSerializer(data=request.data)
 
         if purchase_serializer.is_valid():
             # Extract values from the validated data
-            amount = purchase_serializer.validated_data.get('amount')
-            cgst = purchase_serializer.validated_data.get('cgst')
-            sgst = purchase_serializer.validated_data.get('sgst')
+            # cgst = purchase_serializer.validated_data.get('cgst')
+            # sgst = purchase_serializer.validated_data.get('sgst')
             tds = purchase_serializer.validated_data.get('tds')
             tcs = purchase_serializer.validated_data.get('tcs')
             gst_per = purchase_serializer.validated_data.get('gst_per')
+            purchase_gst_no = purchase_serializer.validated_data.get('gst_no')
+            unit = purchase_serializer.validated_data.get('unit')
+            rate = purchase_serializer.validated_data.get('rate')
+            # taxable_amount = purchase_serializer.validated_data.get('taxable_amount')
 
             try:
-                amount = float(amount)
-                cgst = float(cgst)
-                sgst = float(sgst)
-                tds = float(tds)
-                tcs = float(tcs)
+                # cgst = float(cgst)
+                # sgst = float(sgst)
+                # tds = float(tds)
+                # tcs = float(tcs)
                 gst_per = float(gst_per)
-                print("Amount:", amount)
-                print("CGST:", cgst)
-                print("SGST:", sgst)
-                print("TDS:", tds)
-                print("TCS:", tcs)
-                # Calculate in_amount
-                in_amount = amount + cgst + gst_per + sgst + tcs - tds
-                print("Calculated in_amount:", in_amount)
+                unit = float(unit)
+                rate = float(rate)
+                # taxable_amount = float(taxable_amount)
+
+                # Calculate in_amount based on the first two letters of GST number
+                taxable_amount = unit*rate
+                purchase_serializer.validated_data['taxable_amount'] = taxable_amount
+                if gst and gst.gst_number[:2] == purchase_gst_no[:2]:
+                    cgst = taxable_amount * gst_per / 2 / 100
+                    sgst = taxable_amount * gst_per / 2 / 100
+
+                    purchase_serializer.validated_data['cgst'] = cgst
+                    purchase_serializer.validated_data['sgst'] = sgst
+                    total_invoice=taxable_amount + cgst + sgst
+    
+                else:
+                    igst = taxable_amount * gst_per
+                    purchase_serializer.validated_data['igst'] = igst
+                    total_invoice=taxable_amount + igst
+
 
                 # Update the serializer with the calculated in_amount
-                purchase_serializer.validated_data['in_amount'] = in_amount
+                purchase_serializer.validated_data['total_invoice'] = total_invoice
+                if tds is not None:
+
+                    amount_receivable= (total_invoice - tds)
+                else:
+                    amount_receivable= (total_invoice + tcs)
+                purchase_serializer.validated_data['amount_receivable'] = amount_receivable
 
                 # Save the instance
                 purchase_instance = purchase_serializer.save(branch=branch)
+
+                print("unit",unit)
+                print("rate",rate)
+                print("gst_per",gst_per)
+                
+                print("taxable_amount",taxable_amount)
+                print("cgst",cgst)
+                print("sgst",sgst)
+                # print("igst",igst)
+                print("total_invoice",total_invoice)
+                print("tcs",tcs)
+                print("tds",tds)
+                print("amount_receivable",amount_receivable)
 
                 return Response({'message': 'Purchase Invoice created successfully.', 'id': purchase_instance.id}, status=status.HTTP_201_CREATED)
             except ValueError:

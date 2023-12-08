@@ -73,7 +73,7 @@ class Branch(models.Model):
     # branch_entity = models.CharField(max_length=100, choices=b_entities)
 
     def __str__(self):
-        return self.branch
+        return self.branch+"-"f"{self.id}"
     
 
 class OwnerDetails(models.Model):
@@ -199,7 +199,18 @@ class Gst(models.Model):
 
     def __str__(self):
         return self.gst_number
-    
+
+invoice_type =[
+    ('b2b','B2B'),
+    ('b2c-l','B2C-L'),
+    ('bsc','Bsc-O'),
+    ('nil-rated','Nil-Rated'),
+    ('advance received','Advance Received'),
+    ('export','Export'),
+    ('unregistered-local','Unregistered-Local'),
+    ('unregistered-nonlocal','Unregistered-NonLocal'),
+]
+
 
 class SalesInvoice(models.Model):
     branch = models.ForeignKey(Branch,on_delete=models.CASCADE,null=True, blank=True)
@@ -248,30 +259,67 @@ class CreditNote(models.Model):
     def __str__(self):
         return f"Credit Note {self.id} - {self.invoice_no}" if self.invoice_no else f"Credit Note {self.id} - No Invoice Number"
 
-
-
 class PurchaseInvoice(models.Model):
     branch = models.ForeignKey(Branch,on_delete=models.CASCADE,null=True, blank=True)  
-    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
-    party_name = models.CharField(max_length=250)
-    booking_date = models.DateField(auto_now_add=True, null=True,blank=True)
-    is_reverse = models.BooleanField(null=True,blank=True)
     month = models.DateField(null=True, blank=True)
-    invoice_no = models.CharField(max_length=255,null=True, blank=True)
+    gst_no =models.CharField(max_length=50, null=True, blank=True)
+    party_name = models.CharField(max_length=250)
     invoice_date = models.DateField(null=True, blank=True)
-    amount = models.IntegerField(null=True, blank=True)
+    invoice_no = models.CharField(max_length=255,null=True, blank=True)
+    invoice_type=models.CharField(max_length=100, choices=invoice_type,null=True, blank=True)
+    hsn = models.CharField(max_length=50,null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    unit_of_measure = models.CharField(max_length=50,null=True, blank=True)
+    unit=models.IntegerField(null=True, blank=True)
+    rate = models.IntegerField(null=True, blank=True)
     gst_per=models.IntegerField(null=True, blank=True)
+    taxable_amount=models.IntegerField(null=True, blank=True)
     cgst = models.IntegerField(null=True, blank=True)
     sgst = models.IntegerField(null=True, blank=True)
-    tds = models.IntegerField(null=True, blank=True)
+    igst = models.IntegerField(null=True, blank=True)
+    total_invoice = models.IntegerField(null=True, blank=True)
     tcs = models.IntegerField(null=True, blank=True)
-    in_amount = models.IntegerField(null=True, blank=True)
+    tds = models.IntegerField(null=True, blank=True)
+    amount_receivable = models.IntegerField(null=True,blank=True)
     attach_invoice = models.FileField()
     attach_eway = models.FileField()
 
-
     def __str__(self):
         return f"Purchase Invoice {self.id} - {self.invoice_no}" if self.invoice_no else f"Purchase Invoice {self.id} - No Invoice Number"
+
+
+
+# class PurchaseInvoice(models.Model):
+#     branch = models.ForeignKey(Branch,on_delete=models.CASCADE,null=True, blank=True)  
+#     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
+#     party_name = models.CharField(max_length=250)
+#     gst_no =models.CharField(max_length=50, null=True, blank=True)
+#     booking_date = models.DateField(auto_now_add=True, null=True,blank=True)
+#     is_reverse = models.BooleanField(null=True,blank=True)
+#     month = models.DateField(null=True, blank=True)
+#     invoice_no = models.CharField(max_length=255,null=True, blank=True)
+#     invoice_date = models.DateField(null=True, blank=True)
+#     invoice_type=models.CharField(max_length=100, choices=invoice_type,null=True, blank=True)
+#     hsn = models.CharField(max_length=50,null=True, blank=True)
+#     description = models.TextField(null=True, blank=True)
+#     unit_of_measure = models.CharField(max_length=50,null=True, blank=True)
+#     unit=models.IntegerField(null=True, blank=True)
+#     amount = models.IntegerField(null=True, blank=True)
+#     gst_per=models.IntegerField(null=True, blank=True)
+#     taxable_amount=models.IntegerField(null=True, blank=True)
+#     cgst = models.IntegerField(null=True, blank=True)
+#     sgst = models.IntegerField(null=True, blank=True)
+#     igst = models.IntegerField(null=True, blank=True)
+#     in_amount = models.IntegerField(null=True, blank=True)
+#     tds = models.IntegerField(null=True, blank=True)
+#     tcs = models.IntegerField(null=True, blank=True)
+#     amount_receivable = models.IntegerField(null=True,blank=True)
+#     attach_invoice = models.FileField()
+#     attach_eway = models.FileField()
+
+
+#     def __str__(self):
+#         return f"Purchase Invoice {self.id} - {self.invoice_no}" if self.invoice_no else f"Purchase Invoice {self.id} - No Invoice Number"
     
 
 

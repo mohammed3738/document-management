@@ -87,15 +87,15 @@ class SalesInvoiceSerializer(ModelSerializer):
 class CreditNoteSerializer(ModelSerializer):
     class Meta:
         model=CreditNote
-        fields = ['id','party_name','month','invoice_no','invoice_date','amount','cgst','gst_per','sgst','tds','tcs','cr_amount','attach_invoice','attach_eway']
+        fields = ['id','month','gst_no','party_name','invoice_date','invoice_no','invoice_type','hsn','description','unit_of_measure','unit','rate','gst_per','taxable_amount','cgst','sgst','igst','total_invoice','tcs','tds','amount_receivable','attach_invoice','attach_eway']
 
 
 class PurchaseInvoiceSerializer(ModelSerializer):
-    in_amount = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    total_invoice = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
 
     class Meta:
         model=PurchaseInvoice
-        fields = ['id','branch','party_name','booking_date','is_reverse','month','invoice_no','invoice_date','amount','cgst','gst_per','sgst','tds','tcs','in_amount','attach_invoice','attach_eway']
+        fields = ['id','month','gst_no','party_name','invoice_date','invoice_no','invoice_type','hsn','description','unit_of_measure','unit','rate','gst_per','taxable_amount','cgst','sgst','igst','total_invoice','tcs','tds','amount_receivable','attach_invoice','attach_eway']
 
 class DebitNoteSerializer(ModelSerializer):
     class Meta:
