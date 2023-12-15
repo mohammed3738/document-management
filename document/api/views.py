@@ -1022,7 +1022,7 @@ def create_purchase_invoice(request, branch_pk):
             products_data = request.data.get('products', [])
             for product_data in products_data:
                 product_data['purchase_invoice'] = purchase_instance.id
-                product_serializer = ProductSerializer(data=product_data)
+                product_serializer = ProductDetailsSerializer(data=product_data)
                 if product_serializer.is_valid():
                     product_serializer.save()
                 else:
