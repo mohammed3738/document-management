@@ -263,20 +263,10 @@ class PurchaseInvoice(models.Model):
     branch = models.ForeignKey(Branch,on_delete=models.CASCADE,null=True, blank=True)  
     month = models.DateField(null=True, blank=True)
     gst_no =models.CharField(max_length=50, null=True, blank=True)
-    party_name = models.CharField(max_length=250)
+    party_name = models.CharField(max_length=250,null=True, blank=True)
     invoice_date = models.DateField(null=True, blank=True)
     invoice_no = models.CharField(max_length=255,null=True, blank=True)
     invoice_type=models.CharField(max_length=100, choices=invoice_type,null=True, blank=True)
-    hsn = models.CharField(max_length=50,null=True, blank=True)
-    description = models.TextField(null=True, blank=True)
-    unit_of_measure = models.CharField(max_length=50,null=True, blank=True)
-    unit=models.IntegerField(null=True, blank=True)
-    rate = models.IntegerField(null=True, blank=True)
-    gst_per=models.IntegerField(null=True, blank=True)
-    taxable_amount=models.IntegerField(null=True, blank=True)
-    cgst = models.IntegerField(null=True, blank=True)
-    sgst = models.IntegerField(null=True, blank=True)
-    igst = models.IntegerField(null=True, blank=True)
     total_invoice = models.IntegerField(null=True, blank=True)
     tcs = models.IntegerField(null=True, blank=True)
     tds = models.IntegerField(null=True, blank=True)
@@ -288,6 +278,25 @@ class PurchaseInvoice(models.Model):
         return f"Purchase Invoice {self.id} - {self.invoice_no}" if self.invoice_no else f"Purchase Invoice {self.id} - No Invoice Number"
 
 
+
+
+
+
+class ProductDetails(models.Model):
+    purchase_invoice= models.ForeignKey('PurchaseInvoice',on_delete=models.CASCADE, null=True,blank=True)
+    hsn = models.CharField(max_length=50,null=True, blank=True)
+    product_name = models.TextField(null=True, blank=True)
+    unit_of_measure = models.CharField(max_length=50,null=True, blank=True)
+    unit=models.IntegerField(null=True, blank=True)
+    rate = models.IntegerField(null=True, blank=True)
+    gst_per=models.IntegerField(null=True, blank=True)
+    taxable_amount=models.IntegerField(null=True, blank=True)
+    cgst = models.IntegerField(null=True, blank=True)
+    sgst = models.IntegerField(null=True, blank=True)
+    igst = models.IntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Product {self.id} - {self.product_name}" if self.product_name else f"Product {self.id} - No Invoice Number"
 
 # class PurchaseInvoice(models.Model):
 #     branch = models.ForeignKey(Branch,on_delete=models.CASCADE,null=True, blank=True)  

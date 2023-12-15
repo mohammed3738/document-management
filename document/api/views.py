@@ -865,85 +865,177 @@ def credit_note_view(request,branch_pk,sales_pk):
     return Response(data)
 
 # *************purchase invoice views*************
+# @api_view(['POST'])
+# def create_purchase_invoice(request, branch_pk):
+#     branch = get_object_or_404(Branch, id=branch_pk)
+#     gst = Gst.objects.filter(branch=branch).first()
+    
+#     if request.method == 'POST':
+#         purchase_serializer = PurchaseInvoiceSerializer(data=request.data)
+
+#         if purchase_serializer.is_valid():
+#             # Extract values from the validated data
+#             # cgst = purchase_serializer.validated_data.get('cgst')
+#             # sgst = purchase_serializer.validated_data.get('sgst')
+#             tds = purchase_serializer.validated_data.get('tds')
+#             tcs = purchase_serializer.validated_data.get('tcs')
+#             gst_per = purchase_serializer.validated_data.get('gst_per')
+#             purchase_gst_no = purchase_serializer.validated_data.get('gst_no')
+#             unit = purchase_serializer.validated_data.get('unit')
+#             rate = purchase_serializer.validated_data.get('rate')
+#             gst_no = purchase_serializer.validated_data.get('gst_no')
+#             invoice_type = purchase_serializer.validated_data.get('invoice_type')
+#             # taxable_amount = purchase_serializer.validated_data.get('taxable_amount')
+
+
+#             party = VendorBranch.objects.filter(gst=gst_no).first()
+#             if party:
+#                 if party.gst == gst_no:
+#                     party_name = party.vendor.name
+#                     purchase_serializer.validated_data['party_name'] = party_name
+#                     print("party11==", party.gst)
+#                     print("a147852369==", party.vendor.name)
+#                 else:
+#                     purchase_serializer.validated_data['party_name'] = "no matching found"
+#             else:
+#                 purchase_serializer.validated_data['party_name'] = "no matching found"
+
+
+#             try:
+#                 total_invoice = 0
+#                 # cgst = float(cgst)
+#                 # sgst = float(sgst)
+#                 # tds = float(tds)
+#                 # tcs = float(tcs)
+#                 if gst_per:
+#                     gst_per = float(gst_per)
+#                 else:
+#                     gst_per=0
+#                 unit = float(unit)
+#                 rate = float(rate)
+#                 # taxable_amount = float(taxable_amount)
+
+#                 # Calculate in_amount based on the first two letters of GST number
+#                 taxable_amount = unit*rate
+#                 purchase_serializer.validated_data['taxable_amount'] = taxable_amount
+#                 party1 = ClientVendor.objects.filter(pan=gst_no).first()
+#                 if gst and gst.gst_number[:2] == purchase_gst_no[:2]:
+                    
+#                     if invoice_type == "nill-rated" or "export":
+#                         # purchase_serializer.validated_data['gst_per'] = 0
+#                         taxable_amount = unit*rate
+#                         purchase_serializer.validated_data['taxable_amount'] = taxable_amount
+#                         total_invoice = unit*rate
+#                         purchase_serializer.validated_data['total_invoice'] = total_invoice
+
+                       
+#                         cgst=0
+#                         sgst=0
+#                     else:
+#                         cgst = taxable_amount * gst_per / 2 / 100
+#                         sgst = taxable_amount * gst_per / 2 / 100
+
+#                         purchase_serializer.validated_data['cgst'] = cgst
+#                         purchase_serializer.validated_data['sgst'] = sgst
+#                         total_invoice=taxable_amount + cgst + sgst
+
+#                 elif gst_no == party1.pan:
+#                     if invoice_type=="unregistered-nonlocal":
+#                         igst = taxable_amount * gst_per/100
+#                         purchase_serializer.validated_data['igst'] = igst
+#                         total_invoice=taxable_amount + igst
+#                     elif invoice_type=="unregistered-local":
+#                         cgst = taxable_amount * gst_per / 2 / 100
+#                         sgst = taxable_amount * gst_per / 2 / 100
+
+#                         purchase_serializer.validated_data['cgst'] = cgst
+#                         purchase_serializer.validated_data['sgst'] = sgst
+#                         total_invoice=taxable_amount + cgst + sgst
+#                     else:
+#                         taxable_amount = unit*rate
+#                         purchase_serializer.validated_data['taxable_amount'] = taxable_amount
+#                         total_invoice = unit*rate
+#                         purchase_serializer.validated_data['total_invoice'] = total_invoice
+
+                       
+#                         cgst=0
+#                         sgst=0
+
+
+#                 else:
+#                         igst = taxable_amount * gst_per
+#                         purchase_serializer.validated_data['igst'] = igst
+#                         total_invoice=taxable_amount + igst
+
+
+                    
+#                 # Update the serializer with the calculated in_amount
+#                 purchase_serializer.validated_data['total_invoice'] = total_invoice
+#                 if tds is not None:
+
+#                     amount_receivable= (total_invoice - tds)
+#                 else:
+#                     amount_receivable= (total_invoice + tcs)
+#                 purchase_serializer.validated_data['amount_receivable'] = amount_receivable
+
+                
+
+#                 # Save the instance
+#                 purchase_instance = purchase_serializer.save(branch=branch)
+
+#                 print("unit",unit)
+#                 print("rate",rate)
+#                 print("gst_per",gst_per)
+                
+#                 print("taxable_amount",taxable_amount)
+#                 # print("cgst",cgst)
+#                 # print("sgst",sgst)
+#                 # print("igst",igst)
+#                 print("total_invoice",total_invoice)
+#                 print("tcs",tcs)
+#                 print("tds",tds)
+#                 print("amount_receivable",amount_receivable)
+
+#                 return Response({'message': 'Purchase Invoice created successfully.', 'id': purchase_instance.id}, status=status.HTTP_201_CREATED)
+#             except ValueError:
+#                 return Response({'error': 'Invalid numeric values in input'}, status=status.HTTP_400_BAD_REQUEST)
+
+#         return Response(purchase_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#     return Response({'message': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+
 @api_view(['POST'])
 def create_purchase_invoice(request, branch_pk):
     branch = get_object_or_404(Branch, id=branch_pk)
     gst = Gst.objects.filter(branch=branch).first()
-    
+
     if request.method == 'POST':
         purchase_serializer = PurchaseInvoiceSerializer(data=request.data)
 
         if purchase_serializer.is_valid():
-            # Extract values from the validated data
-            # cgst = purchase_serializer.validated_data.get('cgst')
-            # sgst = purchase_serializer.validated_data.get('sgst')
-            tds = purchase_serializer.validated_data.get('tds')
-            tcs = purchase_serializer.validated_data.get('tcs')
-            gst_per = purchase_serializer.validated_data.get('gst_per')
-            purchase_gst_no = purchase_serializer.validated_data.get('gst_no')
-            unit = purchase_serializer.validated_data.get('unit')
-            rate = purchase_serializer.validated_data.get('rate')
-            # taxable_amount = purchase_serializer.validated_data.get('taxable_amount')
+            # Save the instance
+            purchase_instance = purchase_serializer.save(branch=branch)
 
-            try:
-                # cgst = float(cgst)
-                # sgst = float(sgst)
-                # tds = float(tds)
-                # tcs = float(tcs)
-                gst_per = float(gst_per)
-                unit = float(unit)
-                rate = float(rate)
-                # taxable_amount = float(taxable_amount)
-
-                # Calculate in_amount based on the first two letters of GST number
-                taxable_amount = unit*rate
-                purchase_serializer.validated_data['taxable_amount'] = taxable_amount
-                if gst and gst.gst_number[:2] == purchase_gst_no[:2]:
-                    cgst = taxable_amount * gst_per / 2 / 100
-                    sgst = taxable_amount * gst_per / 2 / 100
-
-                    purchase_serializer.validated_data['cgst'] = cgst
-                    purchase_serializer.validated_data['sgst'] = sgst
-                    total_invoice=taxable_amount + cgst + sgst
-    
+            # Handle Products
+            products_data = request.data.get('products', [])
+            for product_data in products_data:
+                product_data['purchase_invoice'] = purchase_instance.id
+                product_serializer = ProductSerializer(data=product_data)
+                if product_serializer.is_valid():
+                    product_serializer.save()
                 else:
-                    igst = taxable_amount * gst_per
-                    purchase_serializer.validated_data['igst'] = igst
-                    total_invoice=taxable_amount + igst
+                    # Handle validation errors for individual products
+                    return Response({'error': product_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-
-                # Update the serializer with the calculated in_amount
-                purchase_serializer.validated_data['total_invoice'] = total_invoice
-                if tds is not None:
-
-                    amount_receivable= (total_invoice - tds)
-                else:
-                    amount_receivable= (total_invoice + tcs)
-                purchase_serializer.validated_data['amount_receivable'] = amount_receivable
-
-                # Save the instance
-                purchase_instance = purchase_serializer.save(branch=branch)
-
-                print("unit",unit)
-                print("rate",rate)
-                print("gst_per",gst_per)
-                
-                print("taxable_amount",taxable_amount)
-                print("cgst",cgst)
-                print("sgst",sgst)
-                # print("igst",igst)
-                print("total_invoice",total_invoice)
-                print("tcs",tcs)
-                print("tds",tds)
-                print("amount_receivable",amount_receivable)
-
-                return Response({'message': 'Purchase Invoice created successfully.', 'id': purchase_instance.id}, status=status.HTTP_201_CREATED)
-            except ValueError:
-                return Response({'error': 'Invalid numeric values in input'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Purchase Invoice created successfully.', 'id': purchase_instance.id}, status=status.HTTP_201_CREATED)
 
         return Response(purchase_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     return Response({'message': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
 
 # @api_view(['POST'])
 # def create_purchase_invoice(request,branch_pk):
