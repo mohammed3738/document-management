@@ -777,7 +777,7 @@ def create_purchase_invoice(request, branch_pk):
             purchase_instance = purchase_serializer.save(branch=branch, commit=False)
 
             # Deserialize the Product Details data
-            product_data_list = request.data.get('inputFields', [])
+            product_data_list = request.data.get('products', [])
             product_serializer = ProductDetailsSerializer(data=product_data_list, many=True)
 
             if product_serializer.is_valid():
@@ -800,6 +800,7 @@ def create_purchase_invoice(request, branch_pk):
         return Response({'error': purchase_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     return Response({'message': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
 
 
 
