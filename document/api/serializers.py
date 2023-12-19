@@ -100,7 +100,6 @@ class ProductDetailsSerializer(serializers.ModelSerializer):
 
 class PurchaseInvoiceSerializer(serializers.ModelSerializer):
     total_invoice = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
-    # products = ProductDetailsSerializer(many=True, required=False)
 
     class Meta:
         model = PurchaseInvoice
