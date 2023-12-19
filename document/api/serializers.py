@@ -100,11 +100,11 @@ class ProductDetailsSerializer(serializers.ModelSerializer):
 
 class PurchaseInvoiceSerializer(serializers.ModelSerializer):
     total_invoice = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
-    products = ProductDetailsSerializer(many=True, required=False)
+    # products = ProductDetailsSerializer(many=True, required=False)
 
     class Meta:
         model = PurchaseInvoice
-        fields = ['id', 'month', 'gst_no', 'party_name', 'invoice_date', 'invoice_no', 'invoice_type', 'total_invoice', 'tcs', 'tds', 'amount_receivable', 'attach_invoice', 'attach_eway', 'products']
+        fields = ['id', 'month', 'gst_no', 'party_name', 'invoice_date', 'invoice_no', 'invoice_type', 'total_invoice', 'tcs', 'tds', 'amount_receivable', 'attach_invoice', 'attach_eway']
 
         
 class DebitNoteSerializer(ModelSerializer):
