@@ -271,8 +271,8 @@ class PurchaseInvoice(models.Model):
     tcs = models.IntegerField(null=True, blank=True)
     tds = models.IntegerField(null=True, blank=True)
     amount_receivable = models.IntegerField(null=True,blank=True)
-    attach_invoice = models.FileField()
-    attach_eway = models.FileField()
+    attach_invoice = models.FileField(null=True,blank=True)
+    attach_eway = models.FileField(null=True,blank=True)
 
     def __str__(self):
         return f"Purchase Invoice {self.id} - {self.invoice_no}" if self.invoice_no else f"Purchase Invoice {self.id} - No Invoice Number"
