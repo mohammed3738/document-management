@@ -747,6 +747,62 @@ def create_sales_invoice(request,branch_pk):
 #     return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
+# @api_view(['POST'])
+# def create_purchase_invoice(request,branch_pk):
+#     branch = get_object_or_404(Branch, id=branch_pk)
+#     if request.method=="POST":
+#         purchase_serializer = PurchaseInvoiceSerializer(data=request.data)
+#         if purchase_serializer.is_valid():
+#             purchase_instance = purchase_serializer.save(commit=False)
+#             product_serializer = ProductDetailsSerializer(data=request.data)
+
+#             if product_serializer.is_valid():
+
+#             # sales_serializer.save(branch=branch)
+#             return Response({'message': 'Sales Invoice created successfully.'}, status=status.HTTP_201_CREATED)
+
+#         return Response(sales_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+@api_view(['POST'])
+def create_purchase_invoice(request, branch_pk):
+    branch = get_object_or_404(Branch, id=branch_pk)
+
+    if request.method == 'POST':
+        # Deserialize the Purchase Invoice data
+        purchase_serializer = PurchaseInvoiceSerializer(data=request.data)
+
+        if purchase_serializer.is_valid():
+            # Save the Purchase Invoice without committing to the database yet
+            purchase_instance = purchase_serializer.save(branch=branch, commit=False)
+
+            # Deserialize the Product Details data
+            product_data_list = request.data.get('inputFields', [])
+            product_serializer = ProductDetailsSerializer(data=product_data_list, many=True)
+
+            if product_serializer.is_valid():
+                # Save each Product Detail with the mapped Purchase Invoice
+                for product_data in product_data_list:
+                    ProductDetails.objects.create(purchase_invoice=purchase_instance, **product_data)
+
+                # Calculate and update the total_invoice field in Purchase Invoice
+                purchase_instance.calculate_total_invoice()
+                
+                # Now save the Purchase Invoice
+                purchase_instance.save()
+
+                return Response({'message': 'Purchase Invoice created successfully.', 'id': purchase_instance.id}, status=status.HTTP_201_CREATED)
+
+            # Handle validation errors for Product Details
+            return Response({'error': product_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Handle validation errors for Purchase Invoice
+        return Response({'error': purchase_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response({'message': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+
 
 @api_view(['POST','GET'])
 def update_sales_invoice(request, branch_pk, sales_pk):
