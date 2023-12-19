@@ -779,11 +779,11 @@ def create_purchase_invoice(request, branch_pk):
             # Deserialize the Product Details data
             products = []
             for key, value in request.data.items():
-                print( request.data)
+                # print( request.data)
                 if key.startswith('products'):
                     product_dict = {k.split('[')[2][:-1]: v for k, v in request.data.items() if k.startswith(key)}
                     products.append(product_dict)
-            print("products:", request.data.items())
+            print("products:", products)
             serialized_products = ProductDetailsSerializer(data=products, many=True)
 
             if serialized_products.is_valid():
@@ -796,6 +796,7 @@ def create_purchase_invoice(request, branch_pk):
 
                 # Now save the Purchase Invoice
                     prod1.save()
+                    print("saved")
 
                 return Response({'message': 'Purchase Invoice created successfully.', 'id': purchase_instance.id}, status=status.HTTP_201_CREATED)
 
