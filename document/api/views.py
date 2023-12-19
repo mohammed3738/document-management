@@ -771,31 +771,36 @@ def create_purchase_invoice(request, branch_pk):
     if request.method == 'POST':
         # Deserialize the Purchase Invoice data
         purchase_serializer = PurchaseInvoiceSerializer(data=request.data)
-        print("purchase-data:",purchase_serializer)
+
         if purchase_serializer.is_valid():
             # Save the Purchase Invoice without committing to the database yet
             purchase_instance = purchase_serializer.save(branch=branch)
 
             # Deserialize the Product Details data
-            product_data_list = request.data.get('products', [])
-            product_serializer = ProductDetailsSerializer(data=product_data_list, many=True)
-            print("product-data-details:",product_serializer)
-            if product_serializer.is_valid():
-                # Save each Product Detail with the mapped Purchase Invoice
-                for product_data in product_serializer.validated_data:
-                    product_data['purchase_invoice'] = purchase_instance
-                    ProductDetails.objects.create(**product_data)
-                    print("product-data-details123:",product_serializer)
+            products = []
+            for key, value in request.data.items():
+                print( request.data)
+                if key.startswith('products'):
+                    product_dict = {k.split('[')[2][:-1]: v for k, v in request.data.items() if k.startswith(key)}
+                    products.append(product_dict)
+            print("products:", request.data.items())
+            serialized_products = ProductDetailsSerializer(data=products, many=True)
+
+            if serialized_products.is_valid():
+                # Save the products with the mapped Purchase Invoice
+                for product_data in serialized_products.validated_data:
+                    prod1=ProductDetails.objects.create(purchase_invoice=purchase_instance, **product_data)
+
                 # Calculate and update the total_invoice field in Purchase Invoice
                 # purchase_instance.calculate_total_invoice()
 
                 # Now save the Purchase Invoice
-                purchase_instance.save()
+                    prod1.save()
 
                 return Response({'message': 'Purchase Invoice created successfully.', 'id': purchase_instance.id}, status=status.HTTP_201_CREATED)
 
             # Handle validation errors for Product Details
-            return Response({'error': product_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': serialized_products.errors}, status=status.HTTP_400_BAD_REQUEST)
 
         # Handle validation errors for Purchase Invoice
         return Response({'error': purchase_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
