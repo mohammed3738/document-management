@@ -774,7 +774,7 @@ def create_purchase_invoice(request, branch_pk):
 
         if purchase_serializer.is_valid():
             # Save the Purchase Invoice without committing to the database yet
-            purchase_instance = purchase_serializer.save(branch=branch, commit=False)
+            purchase_instance = purchase_serializer.save(branch=branch)
 
             # Deserialize the Product Details data
             product_data_list = request.data.get('products', [])
@@ -782,11 +782,12 @@ def create_purchase_invoice(request, branch_pk):
 
             if product_serializer.is_valid():
                 # Save each Product Detail with the mapped Purchase Invoice
-                for product_data in product_data_list:
-                    ProductDetails.objects.create(purchase_invoice=purchase_instance, **product_data)
+                for product_data in product_serializer.validated_data:
+                    product_data['purchase_invoice'] = purchase_instance.id
+                    ProductDetails.objects.create(**product_data)
 
                 # Calculate and update the total_invoice field in Purchase Invoice
-                purchase_instance.calculate_total_invoice()
+                # purchase_instance.calculate_total_invoice()
                 
                 # Now save the Purchase Invoice
                 purchase_instance.save()
@@ -1063,34 +1064,34 @@ def credit_note_view(request,branch_pk,sales_pk):
 
 
 
-@api_view(['POST'])
-def create_purchase_invoice(request, branch_pk):
-    branch = get_object_or_404(Branch, id=branch_pk)
-    gst = Gst.objects.filter(branch=branch).first()
+# @api_view(['POST'])
+# def create_purchase_invoice(request, branch_pk):
+#     branch = get_object_or_404(Branch, id=branch_pk)
+#     gst = Gst.objects.filter(branch=branch).first()
 
-    if request.method == 'POST':
-        purchase_serializer = PurchaseInvoiceSerializer(data=request.data)
+#     if request.method == 'POST':
+#         purchase_serializer = PurchaseInvoiceSerializer(data=request.data)
 
-        if purchase_serializer.is_valid():
-            # Save the instance
-            purchase_instance = purchase_serializer.save(branch=branch)
+#         if purchase_serializer.is_valid():
+#             # Save the instance
+#             purchase_instance = purchase_serializer.save(branch=branch)
 
-            # Handle Products
-            products_data = request.data.get('products', [])
-            for product_data in products_data:
-                product_data['purchase_invoice'] = purchase_instance.id
-                product_serializer = ProductDetailsSerializer(data=product_data)
-                if product_serializer.is_valid():
-                    product_serializer.save()
-                else:
-                    # Handle validation errors for individual products
-                    return Response({'error': product_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+#             # Handle Products
+#             products_data = request.data.get('products', [])
+#             for product_data in products_data:
+#                 product_data['purchase_invoice'] = purchase_instance.id
+#                 product_serializer = ProductDetailsSerializer(data=product_data)
+#                 if product_serializer.is_valid():
+#                     product_serializer.save()
+#                 else:
+#                     # Handle validation errors for individual products
+#                     return Response({'error': product_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-            return Response({'message': 'Purchase Invoice created successfully.', 'id': purchase_instance.id}, status=status.HTTP_201_CREATED)
+#             return Response({'message': 'Purchase Invoice created successfully.', 'id': purchase_instance.id}, status=status.HTTP_201_CREATED)
 
-        return Response(purchase_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#         return Response(purchase_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    return Response({'message': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+#     return Response({'message': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 
