@@ -45,17 +45,34 @@ def vendor_details(request,vendor_pk):
     return Response(data)
 
 
+# @api_view(['POST'])
+# def create_vendor_branch(request,pk):
+#     vendor = get_object_or_404(ClientVendor,id=pk)
+
+#     if request.method == "POST":
+#         branch_serializer = VBranchSerializer(data=request.data)
+
+#         if branch_serializer.is_valid():
+#             branch_serializer.save(vendor=vendor)
+#             return Response({"message": "Vendor branch created successfully"}, status=status.HTTP_201_CREATED)
+
+#         return Response({"message:not created"},branch_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#     return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+
 @api_view(['POST'])
-def create_vendor_branch(request,pk):
-    vendor = get_object_or_404(ClientVendor,id=pk)
+def create_vendor_branch(request, pk):
+    vendor = get_object_or_404(ClientVendor, id=pk)
 
     if request.method == "POST":
         branch_serializer = VBranchSerializer(data=request.data)
 
         if branch_serializer.is_valid():
             branch_serializer.save(vendor=vendor)
-            return Response({"message": "Vendor branch created successfully"}, status=status.HTTP_201_CREATED)
+            return Response({"message": "Vendor created successfully"}, status=status.HTTP_201_CREATED)
 
-        return Response({"message:not created"},branch_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": "not created", "errors": branch_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
