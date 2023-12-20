@@ -296,7 +296,7 @@ class ProductDetails(models.Model):
     igst = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
-        return f"Product {self.id} - {self.product_name}" if self.product_name else f"Product {self.id} - No Invoice Number"
+        return f"Product {self.id} - {self.product_name}" if self.product_name else f"Product {self.id} - No product-name"
 
 # class PurchaseInvoice(models.Model):
 #     branch = models.ForeignKey(Branch,on_delete=models.CASCADE,null=True, blank=True)  

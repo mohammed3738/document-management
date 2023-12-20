@@ -763,7 +763,6 @@ def create_sales_invoice(request,branch_pk):
 
 #         return Response(sales_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 #     return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
 @api_view(['POST'])
 def create_purchase_invoice(request, branch_pk):
     branch = get_object_or_404(Branch, id=branch_pk)
@@ -773,35 +772,53 @@ def create_purchase_invoice(request, branch_pk):
         purchase_serializer = PurchaseInvoiceSerializer(data=request.data)
 
         if purchase_serializer.is_valid():
-            # Save the Purchase Invoice without committing to the database yet
             purchase_instance = purchase_serializer.save(branch=branch)
 
-            # Deserialize the Product Details data
+            # Extract and prepare product data
+            # print("requet:",request.data)
             products = []
+
             for key, value in request.data.items():
-                # print( request.data)
                 if key.startswith('products'):
-                    product_dict = {k.split('[')[2][:-1]: v for k, v in request.data.items() if k.startswith(key)}
-                    products.append(product_dict)
-            print("products:", products)
-            serialized_products = ProductDetailsSerializer(data=products, many=True)
+                    parts = key.split('[')
+                    
+                    product_index = int(parts[1][:-1])  # Extract the index from the key without the trailing ']'
+                    product_key = parts[2][:-1]  # Extract the inner key without the trailing ']'
+                    if len(products) < product_index + 1:
+                        products.append({})  # Ensure the products list has space for the current index
 
-            if serialized_products.is_valid():
-                # Save the products with the mapped Purchase Invoice
-                for product_data in serialized_products.validated_data:
-                    prod1=ProductDetails.objects.create(purchase_invoice=purchase_instance, **product_data)
+                    products[product_index][product_key] = value  # Assign the inner key-value pair to the appropriate product
 
-                # Calculate and update the total_invoice field in Purchase Invoice
-                # purchase_instance.calculate_total_invoice()
+            # print(products)
+            # products2 = list(products)
+            # Create ProductDetails instances linked to the PurchaseInvoice
+            # print("products 2:",products2)
+            # for i in products:
+            # for product in products:
+            #     for key, value, index in product.items():
+            #         print(f"Key: {key}, Value: {value}, index:{index}")
+            for index, product_dict in enumerate(products, start=0):
+                product1 = ProductDetails.objects.create(
+                
+                purchase_invoice=purchase_instance,
+                # hsn=products[i].get('hsn') if products[0].get('hsn') else 'No HSN',
+                hsn=product_dict.get('hsn', 'No hsn'),
+                # product_name="watches",
+                product_name = product_dict.get('product_name', 'No Product'),
+                unit_of_measure=product_dict.get('unit_of_measure', 'No measure'),
+                unit=product_dict.get('unit', 'No unit'),
+                rate=product_dict.get('rate', 'No rate'),
+                gst_per=product_dict.get('gst_per', 'No gst_per'),
+                # hsn="24",
+                # product_name=products[i].get('product_name') if products[i].get('product_name') else 'No Product',
+                # unit_of_measure=products[i].get('unit_of_measure') if products[i].get('unit_of_measure') else 'No unit of measure',
+                # ... other fields
+            )
 
-                # Now save the Purchase Invoice
-                    prod1.save()
-                    print("saved")
+            # Calculate and update total_invoice field in Purchase Invoice
+            # purchase_instance.calculate_total_invoice()
 
-                return Response({'message': 'Purchase Invoice created successfully.', 'id': purchase_instance.id}, status=status.HTTP_201_CREATED)
-
-            # Handle validation errors for Product Details
-            return Response({'error': serialized_products.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Purchase Invoice created successfully.', 'id': purchase_instance.id}, status=status.HTTP_201_CREATED)
 
         # Handle validation errors for Purchase Invoice
         return Response({'error': purchase_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
