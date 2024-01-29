@@ -112,18 +112,21 @@ def tax_firm_list(request):
 
 
 @api_view(['POST'])
-def create_company(request,id):
-    tax_firm = TaxFirm.objects.filter(id=id)
+def create_company(request, id):
+    tax_firm = TaxFirm.objects.filter(id=id).first()  # Use .first() to get the first matching object
+
     if request.method == "POST":
         company_serializer = CompanySerializer(data=request.data)
 
         if company_serializer.is_valid():
+            # Pass tax_firm as an instance when saving the company
             company_serializer.save(tax_firm=tax_firm)
             return Response({"message": "Company created successfully"}, status=status.HTTP_201_CREATED)
 
-        return Response({"message:not created"},company_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": "Not created", "errors": company_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
 
 @api_view(['GET'])
 def company_list(request,id):
