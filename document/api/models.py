@@ -212,52 +212,125 @@ invoice_type =[
 ]
 
 
+# class SalesInvoice(models.Model):
+#     branch = models.ForeignKey(Branch,on_delete=models.CASCADE,null=True, blank=True)
+#     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
+#     party_name = models.CharField(max_length=250)
+#     is_reverse = models.BooleanField(null=True,blank=True)
+#     booking_date = models.DateField(auto_now_add=True,null=True,blank=True)
+#     month = models.DateField(null=True, blank=True)
+#     invoice_no = models.CharField(max_length=255,null=True, blank=True)
+#     invoice_date = models.DateField(null=True, blank=True)
+#     amount = models.IntegerField(null=True, blank=True)
+#     gst_per=models.IntegerField(null=True,blank=True)
+#     cgst = models.IntegerField(null=True, blank=True)
+#     sgst = models.IntegerField(null=True, blank=True)
+#     tds = models.IntegerField(null=True, blank=True)
+#     tcs = models.IntegerField(null=True, blank=True)
+#     in_amount = models.IntegerField(null=True, blank=True)
+#     attach_invoice = models.FileField()
+#     attach_eway = models.FileField()
+
+
+#     def __str__(self):
+#         return f"Credit Note {self.id} - {self.invoice_no}" if self.invoice_no else f"Credit Note {self.id} - No Invoice Number"
+    
 class SalesInvoice(models.Model):
-    branch = models.ForeignKey(Branch,on_delete=models.CASCADE,null=True, blank=True)
-    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
-    party_name = models.CharField(max_length=250)
-    is_reverse = models.BooleanField(null=True,blank=True)
-    booking_date = models.DateField(auto_now_add=True,null=True,blank=True)
+    branch = models.ForeignKey(Branch,on_delete=models.CASCADE,null=True, blank=True)  
     month = models.DateField(null=True, blank=True)
-    invoice_no = models.CharField(max_length=255,null=True, blank=True)
+    gst_no =models.CharField(max_length=50, null=True, blank=True)
+    party_name = models.CharField(max_length=250,null=True, blank=True)
     invoice_date = models.DateField(null=True, blank=True)
-    amount = models.IntegerField(null=True, blank=True)
-    gst_per=models.IntegerField(null=True,blank=True)
+    invoice_no = models.CharField(max_length=255,null=True, blank=True)
+    invoice_type=models.CharField(max_length=100, choices=invoice_type,null=True, blank=True)
+    total_invoice = models.FloatField(null=True,blank=True)
+    total_gst = models.FloatField(null=True,blank=True)
+    total_tax_amount = models.FloatField(null=True,blank=True)
+    tcs = models.IntegerField(null=True, blank=True)
+    tds = models.IntegerField(null=True, blank=True)
+    amount_receivable = models.IntegerField(null=True,blank=True)
+    attach_invoice = models.FileField(null=True,blank=True)
+    attach_eway = models.FileField(null=True,blank=True)
+    def __str__(self):
+        return f"Sales Invoice {self.id} - {self.invoice_no}" if self.invoice_no else f"Purchase Invoice {self.id} - No Invoice Number"
+
+
+class ProductSales(models.Model):
+    sales_invoice= models.ForeignKey('SalesInvoice',on_delete=models.CASCADE, null=True,blank=True)
+    hsn = models.CharField(max_length=50,null=True, blank=True)
+    product_name = models.TextField(null=True, blank=True)
+    unit_of_measure = models.CharField(max_length=50,null=True, blank=True)
+    unit=models.IntegerField(null=True, blank=True)
+    rate = models.IntegerField(null=True, blank=True)
+    gst_per=models.IntegerField(null=True, blank=True)
+    taxable_amount=models.IntegerField(null=True, blank=True)
     cgst = models.IntegerField(null=True, blank=True)
     sgst = models.IntegerField(null=True, blank=True)
-    tds = models.IntegerField(null=True, blank=True)
-    tcs = models.IntegerField(null=True, blank=True)
-    in_amount = models.IntegerField(null=True, blank=True)
-    attach_invoice = models.FileField()
-    attach_eway = models.FileField()
-
+    igst = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
-        return f"Credit Note {self.id} - {self.invoice_no}" if self.invoice_no else f"Credit Note {self.id} - No Invoice Number"
+        return f"Product {self.id} - {self.product_name}" if self.product_name else f"Product {self.id} - No product-name"
+
+
+
+# class CreditNote(models.Model):
+#     branch = models.ForeignKey(Branch,on_delete=models.CASCADE,null=True, blank=True)
+#     sales_in = models.ForeignKey(SalesInvoice,on_delete=models.CASCADE,null=True, blank=True)
+#     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
+#     month = models.DateField()
+#     party_name = models.CharField(max_length=250)
+#     invoice_no = models.CharField(max_length=255)
+#     invoice_date = models.DateField()
+#     amount = models.IntegerField(null=True, blank=True)
+#     gst_per=models.IntegerField(null=True,blank=True)
+#     cgst = models.IntegerField(null=True, blank=True)
+#     sgst = models.IntegerField(null=True, blank=True)
+#     tds = models.IntegerField(null=True, blank=True)
+#     tcs = models.IntegerField(null=True, blank=True)
+#     cr_amount = models.IntegerField(null=True, blank=True)
+#     attach_invoice = models.FileField()
+#     attach_eway = models.FileField()    
+
     
+#     def __str__(self):
+#         return f"Credit Note {self.id} - {self.invoice_no}" if self.invoice_no else f"Credit Note {self.id} - No Invoice Number"
 
 
 class CreditNote(models.Model):
-    branch = models.ForeignKey(Branch,on_delete=models.CASCADE,null=True, blank=True)
-    sales_in = models.ForeignKey(SalesInvoice,on_delete=models.CASCADE,null=True, blank=True)
-    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
-    month = models.DateField()
-    party_name = models.CharField(max_length=250)
-    invoice_no = models.CharField(max_length=255)
-    invoice_date = models.DateField()
-    amount = models.IntegerField(null=True, blank=True)
-    gst_per=models.IntegerField(null=True,blank=True)
-    cgst = models.IntegerField(null=True, blank=True)
-    sgst = models.IntegerField(null=True, blank=True)
-    tds = models.IntegerField(null=True, blank=True)
+    branch = models.ForeignKey(Branch,on_delete=models.CASCADE,null=True, blank=True)  
+    sales_invoice = models.ForeignKey(SalesInvoice,on_delete=models.CASCADE,null=True, blank=True)  
+    month = models.DateField(null=True, blank=True)
+    gst_no =models.CharField(max_length=50, null=True, blank=True)
+    party_name = models.CharField(max_length=250,null=True, blank=True)
+    invoice_date = models.DateField(null=True, blank=True)
+    invoice_no = models.CharField(max_length=255,null=True, blank=True)
+    invoice_type=models.CharField(max_length=100, choices=invoice_type,null=True, blank=True)
+    total_invoice = models.FloatField(null=True, blank=True)
     tcs = models.IntegerField(null=True, blank=True)
-    cr_amount = models.IntegerField(null=True, blank=True)
-    attach_invoice = models.FileField()
-    attach_eway = models.FileField()    
+    tds = models.IntegerField(null=True, blank=True)
+    amount_receivable = models.IntegerField(null=True,blank=True)
+    attach_invoice = models.FileField(null=True,blank=True)
+    attach_eway = models.FileField(null=True,blank=True)
 
-    
     def __str__(self):
         return f"Credit Note {self.id} - {self.invoice_no}" if self.invoice_no else f"Credit Note {self.id} - No Invoice Number"
+
+class CreditProduct(models.Model):
+    credit_note= models.ForeignKey('CreditNote',on_delete=models.CASCADE, null=True,blank=True)
+    hsn = models.CharField(max_length=50,null=True, blank=True)
+    product_name = models.TextField(null=True, blank=True)
+    unit_of_measure = models.CharField(max_length=50,null=True, blank=True)
+    unit=models.IntegerField(null=True, blank=True)
+    rate = models.IntegerField(null=True, blank=True)
+    gst_per=models.IntegerField(null=True, blank=True)
+    taxable_amount=models.IntegerField(null=True, blank=True)
+    cgst = models.IntegerField(null=True, blank=True)
+    sgst = models.IntegerField(null=True, blank=True)
+    igst = models.IntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Product {self.id} - {self.product_name}" if self.product_name else f"Product {self.id} - No product-name"
+
 
 class PurchaseInvoice(models.Model):
     branch = models.ForeignKey(Branch,on_delete=models.CASCADE,null=True, blank=True)  
@@ -267,7 +340,9 @@ class PurchaseInvoice(models.Model):
     invoice_date = models.DateField(null=True, blank=True)
     invoice_no = models.CharField(max_length=255,null=True, blank=True)
     invoice_type=models.CharField(max_length=100, choices=invoice_type,null=True, blank=True)
-    total_invoice = models.IntegerField(null=True, blank=True)
+    total_invoice = models.FloatField()
+    total_gst = models.FloatField(null=True,blank=True)
+    total_tax_amount = models.FloatField(null=True,blank=True)
     tcs = models.IntegerField(null=True, blank=True)
     tds = models.IntegerField(null=True, blank=True)
     amount_receivable = models.IntegerField(null=True,blank=True)
@@ -332,27 +407,64 @@ class ProductDetails(models.Model):
     
 
 
-class DebitNote(models.Model):
-    branch = models.ForeignKey(Branch,on_delete=models.CASCADE,null=True, blank=True)
-    purchase_in = models.ForeignKey(PurchaseInvoice,on_delete=models.CASCADE,null=True, blank=True)
-    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
-    month = models.DateField()
-    party_name = models.CharField(max_length=250)
-    invoice_no = models.CharField(max_length=255)
-    invoice_date = models.DateField()
-    amount = models.IntegerField(null=True, blank=True)
-    gst_per=models.IntegerField(null=True,blank=True)
-    cgst = models.IntegerField(null=True, blank=True)
-    sgst = models.IntegerField(null=True, blank=True)
-    tds = models.IntegerField(null=True, blank=True)
-    tcs = models.IntegerField(null=True, blank=True)
-    cr_amount = models.IntegerField(null=True, blank=True)
-    attach_invoice = models.FileField()
-    attach_eway = models.FileField()    
+# class DebitNote(models.Model):
+#     branch = models.ForeignKey(Branch,on_delete=models.CASCADE,null=True, blank=True)
+#     purchase_in = models.ForeignKey(PurchaseInvoice,on_delete=models.CASCADE,null=True, blank=True)
+#     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
+#     month = models.DateField()
+#     party_name = models.CharField(max_length=250)
+#     invoice_no = models.CharField(max_length=255)
+#     invoice_date = models.DateField()
+#     amount = models.IntegerField(null=True, blank=True)
+#     gst_per=models.IntegerField(null=True,blank=True)
+#     cgst = models.IntegerField(null=True, blank=True)
+#     sgst = models.IntegerField(null=True, blank=True)
+#     tds = models.IntegerField(null=True, blank=True)
+#     tcs = models.IntegerField(null=True, blank=True)
+#     cr_amount = models.IntegerField(null=True, blank=True)
+#     attach_invoice = models.FileField()
+#     attach_eway = models.FileField()    
 
     
+#     def __str__(self):
+#         return f"Debit Note {self.id} - {self.invoice_no}" if self.invoice_no else f"Debit Note {self.id} - No Invoice Number"
+
+
+class DebitNote(models.Model):
+    branch = models.ForeignKey(Branch,on_delete=models.CASCADE,null=True, blank=True)  
+    purchase_invoice = models.ForeignKey(PurchaseInvoice,on_delete=models.CASCADE,null=True, blank=True)  
+    month = models.DateField(null=True, blank=True)
+    gst_no =models.CharField(max_length=50, null=True, blank=True)
+    party_name = models.CharField(max_length=250,null=True, blank=True)
+    invoice_date = models.DateField(null=True, blank=True)
+    invoice_no = models.CharField(max_length=255,null=True, blank=True)
+    invoice_type=models.CharField(max_length=100, choices=invoice_type,null=True, blank=True)
+    total_invoice = models.FloatField(null=True, blank=True)
+    tcs = models.IntegerField(null=True, blank=True)
+    tds = models.IntegerField(null=True, blank=True)
+    amount_receivable = models.IntegerField(null=True,blank=True)
+    attach_invoice = models.FileField(null=True,blank=True)
+    attach_eway = models.FileField(null=True,blank=True)
+
     def __str__(self):
         return f"Debit Note {self.id} - {self.invoice_no}" if self.invoice_no else f"Debit Note {self.id} - No Invoice Number"
+
+class DebitProduct(models.Model):
+    debit_note= models.ForeignKey('DebitNote',on_delete=models.CASCADE, null=True,blank=True)
+    hsn = models.CharField(max_length=50,null=True, blank=True)
+    product_name = models.TextField(null=True, blank=True)
+    unit_of_measure = models.CharField(max_length=50,null=True, blank=True)
+    unit=models.IntegerField(null=True, blank=True)
+    rate = models.IntegerField(null=True, blank=True)
+    gst_per=models.IntegerField(null=True, blank=True)
+    taxable_amount=models.IntegerField(null=True, blank=True)
+    cgst = models.IntegerField(null=True, blank=True)
+    sgst = models.IntegerField(null=True, blank=True)
+    igst = models.IntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Product {self.id} - {self.product_name}" if self.product_name else f"Product {self.id} - No product-name"
+
 
 month = [
         ('janauary','Janauary'),
@@ -377,7 +489,9 @@ def max_value_current_year(value):
 
 class BankStatement(models.Model):
     company = models.ForeignKey(Company,on_delete=models.CASCADE,null=True, blank=True)
-    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    bank_name = models.CharField(max_length=50,null=True,blank=True)
+    amount = models.FloatField(null=True,blank=True)  
     month = models.CharField(max_length=50,choices=month)
     year = models.IntegerField(('year'), validators=[MinValueValidator(2018), max_value_current_year])   
     attachment = models.FileField()
@@ -389,6 +503,8 @@ class BankStatement(models.Model):
 class InterestCertificate(models.Model):
     company = models.ForeignKey(Company,on_delete=models.CASCADE,null=True, blank=True)
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
+    bank_name = models.CharField(max_length=50,null=True,blank=True)
+    amount = models.FloatField(null=True,blank=True)
     month = models.CharField(max_length=50,choices=month)
     year = models.IntegerField(('year'), validators=[MinValueValidator(2018), max_value_current_year])
     attachment = models.FileField()
@@ -399,6 +515,8 @@ class InterestCertificate(models.Model):
 class AssetsPurchasedBill(models.Model):
     company = models.ForeignKey(Company,on_delete=models.CASCADE,null=True, blank=True)
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
+    bank_name = models.CharField(max_length=50,null=True,blank=True)
+    amount = models.FloatField(null=True,blank=True)
     month = models.CharField(max_length=50,choices=month)
     year = models.IntegerField(('year'), validators=[MinValueValidator(2018), max_value_current_year])
     attachment = models.FileField()
@@ -411,6 +529,8 @@ class AssetsPurchasedBill(models.Model):
 class LoanVoucher(models.Model):
     company = models.ForeignKey(Company,on_delete=models.CASCADE,null=True, blank=True)
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
+    bank_name = models.CharField(max_length=50,null=True,blank=True)
+    amount = models.FloatField(null=True,blank=True)
     month = models.CharField(max_length=50,choices=month)
     year = models.IntegerField(('year'), validators=[MinValueValidator(2018), max_value_current_year])
     attachment = models.FileField()
@@ -421,7 +541,8 @@ class LoanVoucher(models.Model):
 
 class TdsCertificate(models.Model):
     company = models.ForeignKey(Company,on_delete=models.CASCADE,null=True, blank=True)
-    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    amount = models.FloatField(null=True,blank=True)  
     month = models.CharField(max_length=50,choices=month)
     year = models.IntegerField(('year'), validators=[MinValueValidator(2018), max_value_current_year])
     attachment = models.FileField()
@@ -455,7 +576,8 @@ types =[
 
 class InvestmentStatement(models.Model):
     company = models.ForeignKey(Company,on_delete=models.CASCADE,null=True, blank=True)
-    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    amount = models.FloatField(null=True,blank=True)  
     month = models.CharField(max_length=50,choices=month)
     year = models.IntegerField(('year'), validators=[MinValueValidator(2018), max_value_current_year])
     type=models.CharField(max_length=100, choices=types)
@@ -490,3 +612,40 @@ class IncomeTaxReturn(models.Model):
     def __str__(self):
         return self.return_type
     
+
+returns=[
+    ('gstr-1','GSTR-1'),
+    ('gstr-3b','GSTR-3B'),
+    ('gstr-4','GSTR-4'),
+    ('gstr-5','GSTR-5'),
+    ('gstr-5a','GSTR-5A'),
+    ('gstr-6','GSTR-6'),
+    ('gstr-7','GSTR-7'),
+    ('gstr-8','GSTR-8'),
+    ('gstr-9','GSTR-9'),
+    ('gstr-10','GSTR-10'),
+    ('gstr-11','GSTR-11'),
+    ('cmp-8','CMP-8'),
+    ('itc-04','ITC-04'),
+    ('income-tax','Income-Tax'),
+    ('tax-audit','Tax-Audit'),
+    ('sft','SFT'),
+]
+
+
+
+class FinancialYear(models.Model):
+    company = models.ForeignKey(Company,on_delete=models.CASCADE,null=True, blank=True)
+    return_type =models.CharField(max_length=50,choices=returns)
+    from_date =models.DateField(auto_now=False, auto_now_add=False, null=True,blank=True)
+    to_date =models.DateField(auto_now=False, auto_now_add=False,null=True,blank=True)
+    month =models.CharField(max_length=100,null=True,blank=True)
+    frequency =models.CharField(max_length=50,choices=filing,null=True,blank=True)
+    computation =models.FileField(null=True,blank=True)
+    client_review =models.BooleanField(null=True,blank=True)
+    remark =models.BooleanField(null=True,blank=True)
+    acknowledgement =models.FileField()
+
+
+    def __str__(self):
+        return self.return_type

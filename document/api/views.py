@@ -1,15 +1,30 @@
 from django.shortcuts import render,redirect
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, parser_classes
 from .models import*
 from .serializers import *
 from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail
 from .forms import *
+from rest_framework.parsers import MultiPartParser
+
+
+
 from rest_framework import status
+
+
+
+
+
+
+
+
+
+
 
 from usermaster.models import *
 from usermaster.serializers import *
+from django.views.decorators.csrf import csrf_exempt
 
 
 # Create your views here.
@@ -122,6 +137,10 @@ def company_details(request,pk):
     investment = InvestmentStatement.objects.filter(company=company)
     tax = IncomeTaxReturn.objects.filter(company=company)
     vendor = ClientVendor.objects.filter(company=company)
+    purchase_invoice=PurchaseInvoice.objects.filter(branch__company=company)
+    sales_invoice=SalesInvoice.objects.filter(branch__company=company)
+    # branch = purchase_invoice.branch
+    
     # filter ends here
     
     owner_serializer = OwnerSerializer(owner_list,many=True)
@@ -143,6 +162,12 @@ def company_details(request,pk):
     investment_serializer = InvestmentSerializer(investment,many=True)
     tax_serializer = TaxReturnSerializer(tax,many=True)
     vendor_serializer = VendorSerializer(vendor,many=True)
+    purchase_serializer = PurchaseCompanySerializer(purchase_invoice,many=True)
+    sales_serializer = SalesCompanySerializer(sales_invoice,many=True)
+    serialized_data = purchase_serializer.data
+    print("purchae:",serialized_data)
+  
+       
 
     data = {
         "owners": owner_serializer.data,
@@ -164,6 +189,8 @@ def company_details(request,pk):
         "investment":investment_serializer.data,
         "tax":tax_serializer.data,
         "vendor":vendor_serializer.data,
+        "purchase":purchase_serializer.data,
+        "sales":sales_serializer.data,
     }
     return Response(data)
 
@@ -685,52 +712,112 @@ def delete_gst(request, branch_pk, gst_pk):
     gst.delete()
     return Response({"message": "Msme deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
 
-
-
-# ************sales invoice views***************
-
-
-@api_view(['POST'])
-def create_sales_invoice(request,branch_pk):
+# @csrf_exempt
+@api_view(['POST','GET'])
+def create_sales_invoice(request, branch_pk):
     branch = get_object_or_404(Branch, id=branch_pk)
-    if request.method=="POST":
-        sales_serializer = SalesInvoiceSerializer(data=request.data)
+
+    company= branch.company
+    # branch_gst = GstSerializer.objects.filter(branch=branch)
+    if request.method=="GET":
+        # branch_v_serializer = VBranchSerializer(data=request.data)
+        # mn = 
+        gst_no=request.GET.get('mn')
+       
+        print("gst_no 123:",gst_no)
+        party_gst = VendorBranch.objects.filter(vendor__company=company,gst=gst_no).first() or ClientVendor.objects.filter(company=company,pan=gst_no).first()
+
+        if party_gst:
+            if hasattr(party_gst, 'gst'):
+                # GST field exists in party_gst (VendorBranch)
+                vendor1 = party_gst.vendor
+                vendor2 = party_gst
+                 
+                
+                # print("branch gst no:",branch_gst)
+                # if party_gst[0:2] == branch_gst.gst_number[0:2]:
+                #     branch_gst1 = GstSerializer()
+                # print("vvvvnnn",vendor2)
+                branch_gst = Gst.objects.filter(branch=branch)
+                print("party wala:",branch_gst)
+                v_branch = VendorSerializer(vendor1)
+                v_branch1 = VBranchSerializer(vendor2)
+                branch_gst1 = GstSerializer(branch_gst,many=True)
+                print("branch gst:",branch_gst1)
+                combined_data = {
+                'v_branch': v_branch.data,
+                'v_branch1': v_branch1.data,
+                'branch_gst1':branch_gst1.data
+                }
+                # print("v branch 1 ka :",v_branch1)
+                print("v branch sirf ka :",combined_data)
+                return Response(combined_data)
+            elif hasattr(party_gst, 'pan'):
+                # Pan field exists in party_gst (ClientVendor)
+                vendor2 = party_gst
+                vendor4=party_gst
+                
+                v_branch = VendorSerializer(vendor2)
+                v_branch3 = VendorSerializer(vendor4)
+                combined_data={
+                    'v_branch': v_branch.data,
+                    'v_branch3': v_branch3.data,
+                }
+                print("vendor 2 pan ka:",combined_data)
+                return Response(combined_data)
+            else:
+                return Response({'error_message': "Invalid data"})
+        else:
+            return Response({'error_message': "No vendor found"})
         
+    if request.method == 'POST':
+        # Deserialize the Purchase Invoice data
+        sales_serializer = SalesInvoiceSerializer(data=request.data)
+
         if sales_serializer.is_valid():
-            amount = sales_serializer.validated_data.get('amount')
-            cgst = sales_serializer.validated_data.get('cgst')
-            sgst = sales_serializer.validated_data.get('sgst')
-            tds = sales_serializer.validated_data.get('tds')
-            tcs = sales_serializer.validated_data.get('tcs')
-            gst_per = sales_serializer.validated_data.get('gst_per')
+            print("total 123 invoie:",request.data)
+            sales_instance = sales_serializer.save(branch=branch)
 
-            try:
-                amount = float(amount)
-                cgst = float(cgst)
-                sgst = float(sgst)
-                tds = float(tds)
-                tcs = float(tcs)
-                gst_per = float(gst_per)
-                print("Amount:", amount)
-                print("CGST:", cgst)
-                print("SGST:", sgst)
-                print("TDS:", tds)
-                print("TCS:", tcs)
-                # Calculate in_amount
-                in_amount = amount + cgst + gst_per + sgst + tcs - tds
-                print("Calculated in_amount:", in_amount)
+            # Extract and prepare product data
+            # print("requet:",request.data)
+            products = []
 
-                # Update the serializer with the calculated in_amount
-                sales_serializer.validated_data['in_amount'] = in_amount
-                sales_instance = sales_serializer.save(branch=branch)
+            for key, value in request.data.items():
+                if key.startswith('products'):
+                    parts = key.split('[')
+                    
+                    product_index = int(parts[1][:-1])  # Extract the index from the key without the trailing ']'
+                    product_key = parts[2][:-1]  # Extract the inner key without the trailing ']'
+                    if len(products) < product_index + 1:
+                        products.append({})  # Ensure the products list has space for the current index
 
-                return Response({'message': 'Sales Invoice created successfully.', 'id': sales_instance.id}, status=status.HTTP_201_CREATED)
-            except ValueError:
-                return Response({'error': 'Invalid numeric values in input'}, status=status.HTTP_400_BAD_REQUEST)
+                    products[product_index][product_key] = value  # Assign the inner key-value pair to the appropriate product
+            print("sales_serializer",sales_serializer)
+            for index, product_dict in enumerate(products, start=0):
+                product1 = ProductSales.objects.create(
+                
+                sales_invoice=sales_instance,
+                hsn=product_dict.get('hsn', 'No hsn'),
+                product_name = product_dict.get('product_name', 'No Product'),
+                unit_of_measure=product_dict.get('unit_of_measure', 'No measure'),
+                unit=product_dict.get('unit', 'No unit'),
+                rate=product_dict.get('rate', 'No rate'),
+                gst_per=product_dict.get('gst_per', 'No gst_per'),
+                cgst=product_dict.get('cgst', 'No cgst'),
+                sgst=product_dict.get('sgst', 'No sgst'),
+                taxable_amount=product_dict.get('taxable_amount', 'No amount_receivable'),
+    
+            )
 
-        return Response(sales_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            return Response({'message': 'Sales Invoice created successfully.', 'id': sales_instance.id}, status=status.HTTP_201_CREATED)
+
+        # Handle validation errors for Purchase Invoice
+        return Response({'error': sales_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     return Response({'message': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+# ************sales invoice views***************
 
 
 # @api_view(['POST'])
@@ -738,40 +825,111 @@ def create_sales_invoice(request,branch_pk):
 #     branch = get_object_or_404(Branch, id=branch_pk)
 #     if request.method=="POST":
 #         sales_serializer = SalesInvoiceSerializer(data=request.data)
+        
 #         if sales_serializer.is_valid():
+#             amount = sales_serializer.validated_data.get('amount')
+#             cgst = sales_serializer.validated_data.get('cgst')
+#             sgst = sales_serializer.validated_data.get('sgst')
+#             tds = sales_serializer.validated_data.get('tds')
+#             tcs = sales_serializer.validated_data.get('tcs')
+#             gst_per = sales_serializer.validated_data.get('gst_per')
 
-#             sales_serializer.save(branch=branch)
-#             return Response({'message': 'Sales Invoice created successfully.'}, status=status.HTTP_201_CREATED)
+#             try:
+#                 amount = float(amount)
+#                 cgst = float(cgst)
+#                 sgst = float(sgst)
+#                 tds = float(tds)
+#                 tcs = float(tcs)
+#                 gst_per = float(gst_per)
+#                 print("Amount:", amount)
+#                 print("CGST:", cgst)
+#                 print("SGST:", sgst)
+#                 print("TDS:", tds)
+#                 print("TCS:", tcs)
+#                 # Calculate in_amount
+#                 in_amount = amount + cgst + gst_per + sgst + tcs - tds
+#                 print("Calculated in_amount:", in_amount)
+
+#                 # Update the serializer with the calculated in_amount
+#                 sales_serializer.validated_data['in_amount'] = in_amount
+#                 sales_instance = sales_serializer.save(branch=branch)
+
+#                 return Response({'message': 'Sales Invoice created successfully.', 'id': sales_instance.id}, status=status.HTTP_201_CREATED)
+#             except ValueError:
+#                 return Response({'error': 'Invalid numeric values in input'}, status=status.HTTP_400_BAD_REQUEST)
 
 #         return Response(sales_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#     return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+#     return Response({'message': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
-# @api_view(['POST'])
-# def create_purchase_invoice(request,branch_pk):
-#     branch = get_object_or_404(Branch, id=branch_pk)
-#     if request.method=="POST":
-#         purchase_serializer = PurchaseInvoiceSerializer(data=request.data)
-#         if purchase_serializer.is_valid():
-#             purchase_instance = purchase_serializer.save(commit=False)
-#             product_serializer = ProductDetailsSerializer(data=request.data)
-
-#             if product_serializer.is_valid():
-
-#             # sales_serializer.save(branch=branch)
-#             return Response({'message': 'Sales Invoice created successfully.'}, status=status.HTTP_201_CREATED)
-
-#         return Response(sales_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#     return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
-@api_view(['POST'])
+# @csrf_exempt
+@api_view(['POST','GET'])
 def create_purchase_invoice(request, branch_pk):
     branch = get_object_or_404(Branch, id=branch_pk)
+    company =branch.company
+    # print("abc22:",abc)
+    # branch_gst = GstSerializer.objects.filter(branch=branch)
+    if request.method=="GET":
+        # branch_v_serializer = VBranchSerializer(data=request.data)
+        # mn = 
+        gst_no = request.GET.get('mn')
+        branch_id = request.GET.get('bm')
 
+        print("branch company:",branch_id)
+       
+        print("gst_no 123:",gst_no)
+        party_gst = VendorBranch.objects.filter(vendor__company=company,gst=gst_no).first() or ClientVendor.objects.filter(company=company,pan=gst_no).first()
+
+        if party_gst:
+            if hasattr(party_gst, 'gst'):
+                # GST field exists in party_gst (VendorBranch)
+                vendor1 = party_gst.vendor
+                vendor2 = party_gst
+                 
+                
+                # print("branch gst no:",branch_gst)
+                # if party_gst[0:2] == branch_gst.gst_number[0:2]:
+                #     branch_gst1 = GstSerializer()
+                # print("vvvvnnn",vendor2)
+                branch_gst = Gst.objects.filter(branch=branch)
+                print("party wala:",branch_gst)
+                v_branch = VendorSerializer(vendor1)
+                v_branch1 = VBranchSerializer(vendor2)
+                branch_gst1 = GstSerializer(branch_gst,many=True)
+                print("branch gst:",branch_gst1)
+                combined_data = {
+                'v_branch': v_branch.data,
+                'v_branch1': v_branch1.data,
+                'branch_gst1':branch_gst1.data
+                }
+                # print("v branch 1 ka :",v_branch1)
+                print("v branch sirf ka :",combined_data)
+                return Response(combined_data)
+            elif hasattr(party_gst, 'pan'):
+                # Pan field exists in party_gst (ClientVendor)
+                vendor2 = party_gst
+                vendor4=party_gst
+                
+                v_branch = VendorSerializer(vendor2)
+                v_branch3 = VendorSerializer(vendor4)
+                combined_data={
+                    'v_branch': v_branch.data,
+                    'v_branch3': v_branch3.data,
+                }
+                print("vendor 2 pan ka:",combined_data)
+                return Response(combined_data)
+            else:
+                return Response({'error_message': "Invalid data"})
+        else:
+            return Response({'error_message': "No vendor found"})
+        
     if request.method == 'POST':
         # Deserialize the Purchase Invoice data
         purchase_serializer = PurchaseInvoiceSerializer(data=request.data)
 
         if purchase_serializer.is_valid():
+            print("total invoie:",request.data)
             purchase_instance = purchase_serializer.save(branch=branch)
 
             # Extract and prepare product data
@@ -809,6 +967,151 @@ def create_purchase_invoice(request, branch_pk):
                 unit=product_dict.get('unit', 'No unit'),
                 rate=product_dict.get('rate', 'No rate'),
                 gst_per=product_dict.get('gst_per', 'No gst_per'),
+                # total_gst=product_dict.get('total_gst', 'No gst'),
+                # total_tax_amount=product_dict.get('total_tax_amount', 'No Taxable'),
+                cgst=product_dict.get('cgst', 'No cgst'),
+                sgst=product_dict.get('sgst', 'No cgst'),
+                # sgst=product_dict.get('sgst', 'No cgst'),
+                # hsn="24",
+                # product_name=products[i].get('product_name') if products[i].get('product_name') else 'No Product',
+                # unit_of_measure=products[i].get('unit_of_measure') if products[i].get('unit_of_measure') else 'No unit of measure',
+                # ... other fields
+            )
+
+            # Calculate and update total_invoice field in Purchase Invoice
+            # purchase_instance.calculate_total_invoice()
+
+            return Response({'message': 'Purchase Invoice created successfully.', 'id': purchase_instance.id}, status=status.HTTP_201_CREATED)
+
+        # Handle validation errors for Purchase Invoice
+        return Response({'error': purchase_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response({'message': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+# ///////////////////////purchase company view//////////////////////////
+@api_view(['POST','GET'])
+def create_purchase_invoice_company(request,pk):
+    company = get_object_or_404(Company, id=pk)
+   
+    # company =branch.company
+    # print("abc22:",abc)
+    # branch_gst = GstSerializer.objects.filter(branch=branch)
+    # if request.method=="GET":
+        # branch_v_serializer = VBranchSerializer(data=request.data)
+        # mn = 
+        # gst_no=request.GET.get('mn')
+        # branch_id=request.GET.get('bm')
+        # branch1 =request.GET.get('branch_id')
+    if request.method == "GET":
+        gst_no = request.GET.get('mn')
+        branch_id = request.GET.get('branch_id')
+        # branches = branch_id.branch
+        # print("mohammed",branches)
+        # logger.info(f"GST Number: {gst_no}")
+        # logger.info(f"Branch ID: {branch_id}")
+        print("branch branch hjk:",branch_id)
+        print("company123",company)
+        # branch = get_object_or_404(Branch, id=branch1)
+       
+        print("gst no hj:",gst_no)
+        party_gst = VendorBranch.objects.filter(vendor__company=company,gst=gst_no).first() or ClientVendor.objects.filter(company=company,pan=gst_no).first()
+
+        if party_gst:
+            if hasattr(party_gst, 'gst'):
+                # GST field exists in party_gst (VendorBranch)
+                vendor1 = party_gst.vendor
+                vendor2 = party_gst
+                 
+                
+                # print("branch gst no:",branch_gst)
+                # if party_gst[0:2] == branch_gst.gst_number[0:2]:
+                #     branch_gst1 = GstSerializer()
+                # print("vvvvnnn",vendor2)
+                print("hhhhhhhhhhhhh",branch_id)
+                branch_gst = Gst.objects.filter(branch=branch_id)
+                print("party wala:",branch_gst)
+                v_branch = VendorSerializer(vendor1)
+                v_branch1 = VBranchSerializer(vendor2)
+                branch_gst1 = GstSerializer(branch_gst,many=True)
+                print("atul bhai",branch_gst1)
+                print("branch gst:",branch_gst1)
+                combined_data = {
+                'v_branch': v_branch.data,
+                'v_branch1': v_branch1.data,
+                'branch_gst1':branch_gst1.data
+                }
+                # print("v branch 1 ka :",v_branch1)
+                print("v branch sirf ka :",combined_data)
+                return Response(combined_data)
+            elif hasattr(party_gst, 'pan'):
+                # Pan field exists in party_gst (ClientVendor)
+                vendor2 = party_gst
+                vendor4=party_gst
+                
+                v_branch = VendorSerializer(vendor2)
+                v_branch3 = VendorSerializer(vendor4)
+                combined_data={
+                    'v_branch': v_branch.data,
+                    'v_branch3': v_branch3.data,
+                }
+                print("vendor 2 pan ka:",combined_data)
+                return Response(combined_data)
+            else:
+                return Response({'error_message': "Invalid data"})
+        else:
+            return Response({'error_message': "No vendor found"})
+        
+    if request.method == 'POST':
+        # Deserialize the Purchase Invoice data
+        purchase_serializer = PurchaseCompanySerializer(data=request.data)
+
+        if purchase_serializer.is_valid():
+            print("total invoie:",request.data)
+            branch = purchase_serializer.validated_data.get('branch')
+            print("gijo",branch)
+            purchase_instance = purchase_serializer.save(branch=branch)
+
+            # Extract and prepare product data.
+            # print("requet:",request.data)
+            products = []
+
+            for key, value in request.data.items():
+                if key.startswith('products'):
+                    parts = key.split('[')
+                    
+                    product_index = int(parts[1][:-1])  # Extract the index from the key without the trailing ']'
+                    product_key = parts[2][:-1]  # Extract the inner key without the trailing ']'
+                    if len(products) < product_index + 1:
+                        products.append({})  # Ensure the products list has space for the current index
+
+                    products[product_index][product_key] = value  # Assign the inner key-value pair to the appropriate product
+
+            # print(products)
+            # products2 = list(products)
+            # Create ProductDetails instances linked to the PurchaseInvoice
+            # print("products 2:",products2)
+            # for i in products:
+            # for product in products:
+            #     for key, value, index in product.items():
+            #         print(f"Key: {key}, Value: {value}, index:{index}")
+            for index, product_dict in enumerate(products, start=0):
+                product1 = ProductDetails.objects.create(
+                
+                purchase_invoice=purchase_instance,
+                # hsn=products[i].get('hsn') if products[0].get('hsn') else 'No HSN',
+                hsn=product_dict.get('hsn', 'No hsn'),
+                # product_name="watches",
+                product_name = product_dict.get('product_name', 'No Product'),
+                unit_of_measure=product_dict.get('unit_of_measure', 'No measure'),
+                unit=product_dict.get('unit', 'No unit'),
+                rate=product_dict.get('rate', 'No rate'),
+                gst_per=product_dict.get('gst_per', 'No gst_per'),
+                # total_gst=product_dict.get('total_gst', 'No gst'),
+                # total_tax_amount=product_dict.get('total_tax_amount', 'No Taxable'),
+                cgst=product_dict.get('cgst', '0'),
+                sgst=product_dict.get('sgst', '0'),
+                igst=product_dict.get('igst', '0'),
+                taxable_amount=product_dict.get('taxable_amount', '0')
                 # hsn="24",
                 # product_name=products[i].get('product_name') if products[i].get('product_name') else 'No Product',
                 # unit_of_measure=products[i].get('unit_of_measure') if products[i].get('unit_of_measure') else 'No unit of measure',
@@ -826,6 +1129,7 @@ def create_purchase_invoice(request, branch_pk):
     return Response({'message': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
+# //////////////////purchase company view ends here///////////////////////// 
 
 
 
@@ -885,20 +1189,127 @@ def delete_sales_invoice(request, branch_pk, sales_pk):
 
 
 # ***************credit note****************
-
-@api_view(['POST'])
-def create_credit_note(request,branch_pk,sales_pk):
+@api_view(['POST','GET'])
+def create_credit_note(request, branch_pk,sales_pk):
     branch = get_object_or_404(Branch, id=branch_pk)
     sales = get_object_or_404(SalesInvoice, id=sales_pk)
-    if request.method=="POST":
-        credit_note_serializer = CreditNoteSerializer(data=request.data)
-        if credit_note_serializer.is_valid():
+    company =branch.company
+    # print("abc22:",abc)
+    # branch_gst = GstSerializer.objects.filter(branch=branch)
+    if request.method=="GET":
+        # branch_v_serializer = VBranchSerializer(data=request.data)
+        # mn = 
+        gst_no=request.GET.get('mn')
+       
+        print("gst_no 123:",gst_no)
+        party_gst = VendorBranch.objects.filter(vendor__company=company,gst=gst_no).first() or ClientVendor.objects.filter(company=company,pan=gst_no).first()
 
-            credit_note_serializer.save(branch=branch,sales_in=sales)
-            return Response({'message': 'Credit Note created successfully.'}, status=status.HTTP_201_CREATED)
+        if party_gst:
+            if hasattr(party_gst, 'gst'):
+                # GST field exists in party_gst (VendorBranch)
+                vendor1 = party_gst.vendor
+                vendor2 = party_gst
+                 
+                
+                # print("branch gst no:",branch_gst)
+                # if party_gst[0:2] == branch_gst.gst_number[0:2]:
+                #     branch_gst1 = GstSerializer()
+                # print("vvvvnnn",vendor2)
+                branch_gst = Gst.objects.filter(branch=branch)
+                print("party wala:",branch_gst)
+                v_branch = VendorSerializer(vendor1)
+                v_branch1 = VBranchSerializer(vendor2)
+                branch_gst1 = GstSerializer(branch_gst,many=True)
+                print("branch gst:",branch_gst1)
+                combined_data = {
+                'v_branch': v_branch.data,
+                'v_branch1': v_branch1.data,
+                'branch_gst1':branch_gst1.data
+                }
+                # print("v branch 1 ka :",v_branch1)
+                print("v branch sirf ka :",combined_data)
+                return Response(combined_data)
+            elif hasattr(party_gst, 'pan'):
+                # Pan field exists in party_gst (ClientVendor)
+                vendor2 = party_gst
+                vendor4=party_gst
+                
+                v_branch = VendorSerializer(vendor2)
+                v_branch3 = VendorSerializer(vendor4)
+                combined_data={
+                    'v_branch': v_branch.data,
+                    'v_branch3': v_branch3.data,
+                }
+                print("vendor 2 pan ka:",combined_data)
+                return Response(combined_data)
+            else:
+                return Response({'error_message': "Invalid data"})
+        else:
+            return Response({'error_message': "No vendor found"})
+        
+    if request.method == 'POST':
+        # Deserialize the Purchase Invoice data
+        sales_serializer = CreditNoteSerializer(data=request.data)
 
-        return Response(credit_note_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        if sales_serializer.is_valid():
+            print("total invoie:",request.data)
+            sales_instance = sales_serializer.save(branch=branch, sales_invoice=sales)
+            print("pbb",sales_instance)
+            # Extract and prepare product data
+            # print("requet:",request.data)
+            products = []
+
+            for key, value in request.data.items():
+                if key.startswith('products'):
+                    parts = key.split('[')
+                    
+                    product_index = int(parts[1][:-1])  # Extract the index from the key without the trailing ']'
+                    product_key = parts[2][:-1]  # Extract the inner key without the trailing ']'
+                    if len(products) < product_index + 1:
+                        products.append({})  # Ensure the products list has space for the current index
+
+                    products[product_index][product_key] = value  # Assign the inner key-value pair to the appropriate product
+
+            # print(products)
+            # products2 = list(products)
+            # Create ProductDetails instances linked to the PurchaseInvoice
+            # print("products 2:",products2)
+            # for i in products:
+            # for product in products:
+            #     for key, value, index in product.items():
+            #         print(f"Key: {key}, Value: {value}, index:{index}")
+            for index, product_dict in enumerate(products, start=0):
+                product1 = CreditProduct.objects.create(
+                
+                credit_note=sales_instance,
+                # hsn=products[i].get('hsn') if products[0].get('hsn') else 'No HSN',
+                hsn=product_dict.get('hsn', 'No hsn'),
+                # product_name="watches",
+                product_name = product_dict.get('product_name', 'No Product'),
+                unit_of_measure=product_dict.get('unit_of_measure', 'No measure'),
+                unit=product_dict.get('unit', 'No unit'),
+                rate=product_dict.get('rate', 'No rate'),
+                gst_per=product_dict.get('gst_per', 'No gst_per'),
+                cgst=product_dict.get('cgst', '0'),
+                sgst=product_dict.get('sgst', '0'),
+                igst=product_dict.get('igst', '0'),
+                taxable_amount=product_dict.get('taxable_amount', '0'),
+                # hsn="24",
+                # product_name=products[i].get('product_name') if products[i].get('product_name') else 'No Product',
+                # unit_of_measure=products[i].get('unit_of_measure') if products[i].get('unit_of_measure') else 'No unit of measure',
+                # ... other fields
+            )
+
+            # Calculate and update total_invoice field in Purchase Invoice
+            # purchase_instance.calculate_total_invoice()
+
+            return Response({'message': 'Purchase Invoice created successfully.', 'id': sales_instance.id}, status=status.HTTP_201_CREATED)
+
+        # Handle validation errors for Purchase Invoice
+        return Response({'error': sales_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response({'message': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
 
 
 @api_view(['POST','GET'])
@@ -933,7 +1344,7 @@ def delete_credit_note(request, branch_pk, sales_pk,cr_pk):
 def credit_note_view(request,branch_pk,sales_pk):
     branch = Branch.objects.get(id=branch_pk)
     sales = SalesInvoice.objects.get(id=sales_pk)
-    cr_note = CreditNote.objects.filter(branch=branch,sales_in=sales)
+    cr_note = CreditNote.objects.filter(branch=branch,sales_invoice=sales)
 
     # print(owner_serializer.id)
     cr_note_serializer = CreditNoteSerializer(cr_note,many=True)
@@ -1191,20 +1602,129 @@ def delete_purchase_invoice(request, branch_pk, purchase_pk):
     return Response({"message": "Purchase Invoice deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
 
 
+
 # **************debit note************
-@api_view(['POST'])
-def create_debit_note(request,branch_pk,purchase_pk):
+@api_view(['POST','GET'])
+def create_debit_note(request, branch_pk,purchase_pk):
     branch = get_object_or_404(Branch, id=branch_pk)
     purchase = get_object_or_404(PurchaseInvoice, id=purchase_pk)
-    if request.method=="POST":
-        debit_note_serializer = DebitNoteSerializer(data=request.data)
-        if debit_note_serializer.is_valid():
+    company =branch.company
+    # print("abc22:",abc)
+    # branch_gst = GstSerializer.objects.filter(branch=branch)
+    if request.method=="GET":
+        # branch_v_serializer = VBranchSerializer(data=request.data)
+        # mn = 
+        gst_no=request.GET.get('mn')
+       
+        print("gst_no 123:",gst_no)
+        party_gst = VendorBranch.objects.filter(vendor__company=company,gst=gst_no).first() or ClientVendor.objects.filter(company=company,pan=gst_no).first()
 
-            debit_note_serializer.save(branch=branch,purchase_in=purchase)
-            return Response({'message': 'Debit Note created successfully.'}, status=status.HTTP_201_CREATED)
+        if party_gst:
+            if hasattr(party_gst, 'gst'):
+                # GST field exists in party_gst (VendorBranch)
+                vendor1 = party_gst.vendor
+                vendor2 = party_gst
+                 
+                
+                # print("branch gst no:",branch_gst)
+                # if party_gst[0:2] == branch_gst.gst_number[0:2]:
+                #     branch_gst1 = GstSerializer()
+                # print("vvvvnnn",vendor2)
+                branch_gst = Gst.objects.filter(branch=branch)
+                print("party wala:",branch_gst)
+                v_branch = VendorSerializer(vendor1)
+                v_branch1 = VBranchSerializer(vendor2)
+                branch_gst1 = GstSerializer(branch_gst,many=True)
+                print("branch gst:",branch_gst1)
+                combined_data = {
+                'v_branch': v_branch.data,
+                'v_branch1': v_branch1.data,
+                'branch_gst1':branch_gst1.data
+                }
+                # print("v branch 1 ka :",v_branch1)
+                print("v branch sirf ka :",combined_data)
+                return Response(combined_data)
+            elif hasattr(party_gst, 'pan'):
+                # Pan field exists in party_gst (ClientVendor)
+                vendor2 = party_gst
+                vendor4=party_gst
+                
+                v_branch = VendorSerializer(vendor2)
+                v_branch3 = VendorSerializer(vendor4)
+                combined_data={
+                    'v_branch': v_branch.data,
+                    'v_branch3': v_branch3.data,
+                }
+                print("vendor 2 pan ka:",combined_data)
+                return Response(combined_data)
+            else:
+                return Response({'error_message': "Invalid data"})
+        else:
+            return Response({'error_message': "No vendor found"})
+        
+    if request.method == 'POST':
+        # Deserialize the Purchase Invoice data
+        purchase_serializer = DebitNoteSerializer(data=request.data)
 
-        return Response(debit_note_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        if purchase_serializer.is_valid():
+            print("total invoie:",request.data)
+            purchase_instance = purchase_serializer.save(branch=branch, purchase_invoice=purchase)
+            print("pbb",purchase_instance)
+            # Extract and prepare product data
+            # print("requet:",request.data)
+            products = []
+
+            for key, value in request.data.items():
+                if key.startswith('products'):
+                    parts = key.split('[')
+                    
+                    product_index = int(parts[1][:-1])  # Extract the index from the key without the trailing ']'
+                    product_key = parts[2][:-1]  # Extract the inner key without the trailing ']'
+                    if len(products) < product_index + 1:
+                        products.append({})  # Ensure the products list has space for the current index
+
+                    products[product_index][product_key] = value  # Assign the inner key-value pair to the appropriate product
+
+            # print(products)
+            # products2 = list(products)
+            # Create ProductDetails instances linked to the PurchaseInvoice
+            # print("products 2:",products2)
+            # for i in products:
+            # for product in products:
+            #     for key, value, index in product.items():
+            #         print(f"Key: {key}, Value: {value}, index:{index}")
+            for index, product_dict in enumerate(products, start=0):
+                product1 = DebitProduct.objects.create(
+                
+                debit_note=purchase_instance,
+                # hsn=products[i].get('hsn') if products[0].get('hsn') else 'No HSN',
+                hsn=product_dict.get('hsn', 'No hsn'),
+                # product_name="watches",
+                product_name = product_dict.get('product_name', 'No Product'),
+                unit_of_measure=product_dict.get('unit_of_measure', 'No measure'),
+                unit=product_dict.get('unit', 'No unit'),
+                rate=product_dict.get('rate', 'No rate'),
+                gst_per=product_dict.get('gst_per', 'No gst_per'),
+                cgst=product_dict.get('cgst', '0'),
+                sgst=product_dict.get('sgst', '0'),
+                igst=product_dict.get('igst', '0'),
+                taxable_amount=product_dict.get('taxable_amount', '0'),
+                # hsn="24",
+                # product_name=products[i].get('product_name') if products[i].get('product_name') else 'No Product',
+                # unit_of_measure=products[i].get('unit_of_measure') if products[i].get('unit_of_measure') else 'No unit of measure',
+                # ... other fields
+            )
+
+            # Calculate and update total_invoice field in Purchase Invoice
+            # purchase_instance.calculate_total_invoice()
+
+            return Response({'message': 'Purchase Invoice created successfully.', 'id': purchase_instance.id}, status=status.HTTP_201_CREATED)
+
+        # Handle validation errors for Purchase Invoice
+        return Response({'error': purchase_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response({'message': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
 
 
 @api_view(['POST','GET'])
@@ -1239,7 +1759,7 @@ def delete_debit_note(request, branch_pk, purchase_pk,db_pk):
 def debit_note_view(request,branch_pk,purchase_pk):
     branch = Branch.objects.get(id=branch_pk)
     purchase = PurchaseInvoice.objects.get(id=purchase_pk)
-    db_note = DebitNote.objects.filter(branch=branch,purchase_in=purchase)
+    db_note = DebitNote.objects.filter(branch=branch,purchase_invoice=purchase)
 
     # print(owner_serializer.id)
     db_note_serializer = DebitNoteSerializer(db_note,many=True)
@@ -1592,3 +2112,471 @@ def delete_tax_return(request, pk, tr_pk):
 #     return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
+
+# //////////////////sales invoice company///////////////////////
+
+# @api_view(['POST','GET'])
+# def create_sales_invoice(request, branch_pk):
+#     branch = get_object_or_404(Branch, id=branch_pk)
+
+#     company= branch.company
+#     # branch_gst = GstSerializer.objects.filter(branch=branch)
+#     if request.method=="GET":
+#         # branch_v_serializer = VBranchSerializer(data=request.data)
+#         # mn = 
+#         gst_no=request.GET.get('mn')
+       
+#         print("gst_no 123:",gst_no)
+#         party_gst = VendorBranch.objects.filter(vendor__company=company,gst=gst_no).first() or ClientVendor.objects.filter(company=company,pan=gst_no).first()
+
+#         if party_gst:
+#             if hasattr(party_gst, 'gst'):
+#                 # GST field exists in party_gst (VendorBranch)
+#                 vendor1 = party_gst.vendor
+#                 vendor2 = party_gst
+                 
+                
+#                 # print("branch gst no:",branch_gst)
+#                 # if party_gst[0:2] == branch_gst.gst_number[0:2]:
+#                 #     branch_gst1 = GstSerializer()
+#                 # print("vvvvnnn",vendor2)
+#                 branch_gst = Gst.objects.filter(branch=branch)
+#                 print("party wala:",branch_gst)
+#                 v_branch = VendorSerializer(vendor1)
+#                 v_branch1 = VBranchSerializer(vendor2)
+#                 branch_gst1 = GstSerializer(branch_gst,many=True)
+#                 print("branch gst:",branch_gst1)
+#                 combined_data = {
+#                 'v_branch': v_branch.data,
+#                 'v_branch1': v_branch1.data,
+#                 'branch_gst1':branch_gst1.data
+#                 }
+#                 # print("v branch 1 ka :",v_branch1)
+#                 print("v branch sirf ka :",combined_data)
+#                 return Response(combined_data)
+#             elif hasattr(party_gst, 'pan'):
+#                 # Pan field exists in party_gst (ClientVendor)
+#                 vendor2 = party_gst
+#                 vendor4=party_gst
+                
+#                 v_branch = VendorSerializer(vendor2)
+#                 v_branch3 = VendorSerializer(vendor4)
+#                 combined_data={
+#                     'v_branch': v_branch.data,
+#                     'v_branch3': v_branch3.data,
+#                 }
+#                 print("vendor 2 pan ka:",combined_data)
+#                 return Response(combined_data)
+#             else:
+#                 return Response({'error_message': "Invalid data"})
+#         else:
+#             return Response({'error_message': "No vendor found"})
+        
+#     if request.method == 'POST':
+#         # Deserialize the Purchase Invoice data
+#         sales_serializer = SalesInvoiceSerializer(data=request.data)
+
+#         if sales_serializer.is_valid():
+#             print("total 123 invoie:",request.data)
+#             sales_instance = sales_serializer.save(branch=branch)
+
+#             # Extract and prepare product data
+#             # print("requet:",request.data)
+#             products = []
+
+#             for key, value in request.data.items():
+#                 if key.startswith('products'):
+#                     parts = key.split('[')
+                    
+#                     product_index = int(parts[1][:-1])  # Extract the index from the key without the trailing ']'
+#                     product_key = parts[2][:-1]  # Extract the inner key without the trailing ']'
+#                     if len(products) < product_index + 1:
+#                         products.append({})  # Ensure the products list has space for the current index
+
+#                     products[product_index][product_key] = value  # Assign the inner key-value pair to the appropriate product
+#             print("sales_serializer",sales_serializer)
+#             for index, product_dict in enumerate(products, start=0):
+#                 product1 = ProductSales.objects.create(
+                
+#                 sales_invoice=sales_instance,
+#                 hsn=product_dict.get('hsn', 'No hsn'),
+#                 product_name = product_dict.get('product_name', 'No Product'),
+#                 unit_of_measure=product_dict.get('unit_of_measure', 'No measure'),
+#                 unit=product_dict.get('unit', 'No unit'),
+#                 rate=product_dict.get('rate', 'No rate'),
+#                 gst_per=product_dict.get('gst_per', 'No gst_per'),
+#                 cgst=product_dict.get('cgst', 'No cgst'),
+#                 sgst=product_dict.get('sgst', 'No sgst'),
+#                 taxable_amount=product_dict.get('taxable_amount', 'No amount_receivable'),
+    
+#             )
+
+
+#             return Response({'message': 'Sales Invoice created successfully.', 'id': sales_instance.id}, status=status.HTTP_201_CREATED)
+
+#         # Handle validation errors for Purchase Invoice
+#         return Response({'error': sales_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+#     return Response({'message': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+@api_view(['POST','GET'])
+def create_sales_invoice_company(request,pk):
+    company = get_object_or_404(Company, id=pk)
+
+    # company= branch.company
+    # branch_gst = GstSerializer.objects.filter(branch=branch)
+    if request.method=="GET":
+        # branch_v_serializer = VBranchSerializer(data=request.data)
+        # mn = 
+        gst_no=request.GET.get('mn')
+        branch_id = request.GET.get('branch_id')
+
+       
+        print("gst_no 123:",gst_no)
+        party_gst = VendorBranch.objects.filter(vendor__company=company,gst=gst_no).first() or ClientVendor.objects.filter(company=company,pan=gst_no).first()
+
+        if party_gst:
+            if hasattr(party_gst, 'gst'):
+                # GST field exists in party_gst (VendorBranch)
+                vendor1 = party_gst.vendor
+                vendor2 = party_gst
+                 
+                
+            
+                branch_gst = Gst.objects.filter(branch=branch_id)
+                print("party wala:",branch_gst)
+                v_branch = VendorSerializer(vendor1)
+                v_branch1 = VBranchSerializer(vendor2)
+                branch_gst1 = GstSerializer(branch_gst,many=True)
+                print("branch gst:",branch_gst1)
+                combined_data = {
+                'v_branch': v_branch.data,
+                'v_branch1': v_branch1.data,
+                'branch_gst1':branch_gst1.data
+                }
+                # print("v branch 1 ka :",v_branch1)
+                print("v branch sirf ka :",combined_data)
+                return Response(combined_data)
+            elif hasattr(party_gst, 'pan'):
+                # Pan field exists in party_gst (ClientVendor)
+                vendor2 = party_gst
+                vendor4=party_gst
+                
+                v_branch = VendorSerializer(vendor2)
+                v_branch3 = VendorSerializer(vendor4)
+                combined_data={
+                    'v_branch': v_branch.data,
+                    'v_branch3': v_branch3.data,
+                }
+                print("vendor 2 pan ka:",combined_data)
+                return Response(combined_data)
+            else:
+                return Response({'error_message': "Invalid data"})
+        else:
+            return Response({'error_message': "No vendor found"})
+        
+    if request.method == 'POST':
+        # Deserialize the Purchase Invoice data
+        sales_serializer = SalesCompanySerializer(data=request.data)
+
+        if sales_serializer.is_valid():
+            print("total 123 invoie:",request.data)
+            branch = sales_serializer.validated_data.get('branch')
+
+            sales_instance = sales_serializer.save(branch=branch)
+
+            # Extract and prepare product data
+            # print("requet:",request.data)
+            products = []
+
+            for key, value in request.data.items():
+                if key.startswith('products'):
+                    parts = key.split('[')
+                    
+                    product_index = int(parts[1][:-1])  # Extract the index from the key without the trailing ']'
+                    product_key = parts[2][:-1]  # Extract the inner key without the trailing ']'
+                    if len(products) < product_index + 1:
+                        products.append({})  # Ensure the products list has space for the current index
+
+                    products[product_index][product_key] = value  # Assign the inner key-value pair to the appropriate product
+            print("sales_serializer",sales_serializer)
+            for index, product_dict in enumerate(products, start=0):
+                product1 = ProductSales.objects.create(
+                
+                sales_invoice=sales_instance,
+                hsn=product_dict.get('hsn', 'No hsn'),
+                product_name = product_dict.get('product_name', 'No Product'),
+                unit_of_measure=product_dict.get('unit_of_measure', 'No measure'),
+                unit=product_dict.get('unit', 'No unit'),
+                rate=product_dict.get('rate', 'No rate'),
+                gst_per=product_dict.get('gst_per', 'No gst_per'),
+                cgst=product_dict.get('cgst', '0'),
+                sgst=product_dict.get('sgst', '0'),
+                igst=product_dict.get('igst', '0'),
+                taxable_amount=product_dict.get('taxable_amount', '0')
+                # cgst=product_dict.get('cgst', 'No cgst'),
+                # sgst=product_dict.get('sgst', 'No sgst'),
+                # taxable_amount=product_dict.get('taxable_amount', 'No amount_receivable'),
+    
+            )
+
+
+            return Response({'message': 'Sales Invoice created successfully.', 'id': sales_instance.id}, status=status.HTTP_201_CREATED)
+
+        # Handle validation errors for Purchase Invoice
+        return Response({'error': sales_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response({'message': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+
+
+# credit note company
+
+@api_view(['POST','GET'])
+def create_credit_note_company(request, branch_pk,sales_pk):
+    branch = get_object_or_404(Branch, id=branch_pk)
+    sales = get_object_or_404(SalesInvoice, id=sales_pk)
+    company =branch.company
+    # print("abc22:",abc)
+    # branch_gst = GstSerializer.objects.filter(branch=branch)
+    if request.method=="GET":
+        # branch_v_serializer = VBranchSerializer(data=request.data)
+        # mn = 
+        gst_no=request.GET.get('mn')
+       
+        print("gst_no 123:",gst_no)
+        party_gst = VendorBranch.objects.filter(vendor__company=company,gst=gst_no).first() or ClientVendor.objects.filter(company=company,pan=gst_no).first()
+
+        if party_gst:
+            if hasattr(party_gst, 'gst'):
+                # GST field exists in party_gst (VendorBranch)
+                vendor1 = party_gst.vendor
+                vendor2 = party_gst
+                 
+                
+                # print("branch gst no:",branch_gst)
+                # if party_gst[0:2] == branch_gst.gst_number[0:2]:
+                #     branch_gst1 = GstSerializer()
+                # print("vvvvnnn",vendor2)
+                branch_gst = Gst.objects.filter(branch=branch)
+                print("party wala:",branch_gst)
+                v_branch = VendorSerializer(vendor1)
+                v_branch1 = VBranchSerializer(vendor2)
+                branch_gst1 = GstSerializer(branch_gst,many=True)
+                print("branch gst:",branch_gst1)
+                combined_data = {
+                'v_branch': v_branch.data,
+                'v_branch1': v_branch1.data,
+                'branch_gst1':branch_gst1.data
+                }
+                # print("v branch 1 ka :",v_branch1)
+                print("v branch sirf ka :",combined_data)
+                return Response(combined_data)
+            elif hasattr(party_gst, 'pan'):
+                # Pan field exists in party_gst (ClientVendor)
+                vendor2 = party_gst
+                vendor4=party_gst
+                
+                v_branch = VendorSerializer(vendor2)
+                v_branch3 = VendorSerializer(vendor4)
+                combined_data={
+                    'v_branch': v_branch.data,
+                    'v_branch3': v_branch3.data,
+                }
+                print("vendor 2 pan ka:",combined_data)
+                return Response(combined_data)
+            else:
+                return Response({'error_message': "Invalid data"})
+        else:
+            return Response({'error_message': "No vendor found"})
+        
+    if request.method == 'POST':
+        # Deserialize the Purchase Invoice data
+        sales_serializer = CreditNoteSerializer(data=request.data)
+
+        if sales_serializer.is_valid():
+            print("total invoie:",request.data)
+            sales_instance = sales_serializer.save(branch=branch, sales_invoice=sales)
+            print("pbb",sales_instance)
+            # Extract and prepare product data
+            # print("requet:",request.data)
+            products = []
+
+            for key, value in request.data.items():
+                if key.startswith('products'):
+                    parts = key.split('[')
+                    
+                    product_index = int(parts[1][:-1])  # Extract the index from the key without the trailing ']'
+                    product_key = parts[2][:-1]  # Extract the inner key without the trailing ']'
+                    if len(products) < product_index + 1:
+                        products.append({})  # Ensure the products list has space for the current index
+
+                    products[product_index][product_key] = value  # Assign the inner key-value pair to the appropriate product
+
+            # print(products)
+            # products2 = list(products)
+            # Create ProductDetails instances linked to the PurchaseInvoice
+            # print("products 2:",products2)
+            # for i in products:
+            # for product in products:
+            #     for key, value, index in product.items():
+            #         print(f"Key: {key}, Value: {value}, index:{index}")
+            for index, product_dict in enumerate(products, start=0):
+                product1 = CreditProduct.objects.create(
+                
+                credit_note=sales_instance,
+                # hsn=products[i].get('hsn') if products[0].get('hsn') else 'No HSN',
+                hsn=product_dict.get('hsn', 'No hsn'),
+                # product_name="watches",
+                product_name = product_dict.get('product_name', 'No Product'),
+                unit_of_measure=product_dict.get('unit_of_measure', 'No measure'),
+                unit=product_dict.get('unit', 'No unit'),
+                rate=product_dict.get('rate', 'No rate'),
+                gst_per=product_dict.get('gst_per', 'No gst_per'),
+                # cgst=product_dict.get('cgst', 'No cgst'),
+                # hsn="24",
+                # product_name=products[i].get('product_name') if products[i].get('product_name') else 'No Product',
+                # unit_of_measure=products[i].get('unit_of_measure') if products[i].get('unit_of_measure') else 'No unit of measure',
+                # ... other fields
+            )
+
+            # Calculate and update total_invoice field in Purchase Invoice
+            # purchase_instance.calculate_total_invoice()
+
+            return Response({'message': 'Purchase Invoice created successfully.', 'id': sales_instance.id}, status=status.HTTP_201_CREATED)
+
+        # Handle validation errors for Purchase Invoice
+        return Response({'error': sales_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response({'message': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+@api_view(['GET'])
+def purchase_detail(request,pk,purchase_pk):
+    branch = Branch.objects.get(id=pk)
+    purchase_detail = PurchaseInvoice.objects.get(id=purchase_pk,branch=branch)
+    product_detail = ProductDetails.objects.filter(purchase_invoice=purchase_detail)
+    
+    print("3333",product_detail,"2222",purchase_detail,"11111",branch)
+    p_serializer = PurchaseCompanySerializer(purchase_detail)
+    vendor_data = p_serializer.data['gst_no']
+    vendor_detail = VendorBranch.objects.get(gst=vendor_data)
+    produc_serializer = ProductDetailsSerializer(product_detail,many=True)
+    print("444444",produc_serializer)
+    vendor_serializer = VBranchSerializer(vendor_detail)
+
+    data={
+        "purchase": p_serializer.data,
+        "product": produc_serializer.data,
+        "adress":vendor_serializer.data['address'],
+    }
+    print("kkkkkkkkkkkk",data)
+    return Response(data)
+    # print(purchase_detail)
+
+
+@api_view(['GET'])
+def sales_detail(request,pk,sales_pk):
+    branch = Branch.objects.get(id=pk)
+    sales_detail = SalesInvoice.objects.get(id=sales_pk,branch=branch)
+    product_detail = ProductSales.objects.filter(sales_invoice=sales_detail)
+    
+    print("3333",product_detail,"2222",purchase_detail,"11111",branch)
+    s_serializer = SalesCompanySerializer(sales_detail)
+    vendor_data = s_serializer.data['gst_no']
+    vendor_detail = VendorBranch.objects.get(gst=vendor_data)
+    produc_serializer = ProductSalesSerializer(product_detail,many=True)
+    print("444444",produc_serializer)
+    vendor_serializer = VBranchSerializer(vendor_detail)
+
+    data={
+        "sales": s_serializer.data,
+        "product": produc_serializer.data,
+        "adress":vendor_serializer.data['address'],
+    }
+    print("kkkkkkkkkkkk",data)
+    return Response(data)
+# ProductSalesSerializer    # print(purchase_detail)
+
+
+@api_view(['GET'])
+def debit_detail(request,pk,debit_pk):
+    purchase = PurchaseInvoice.objects.get(id=pk)
+    debit_detail = DebitNote.objects.get(id=debit_pk,purchase_invoice=purchase)
+    product_detail = DebitProduct.objects.filter(debit_note=debit_detail)
+    
+    # print("3333",product_detail,"2222",purchase_detail,"11111",branch)
+    d_serializer = DebitNoteSerializer(debit_detail)
+    vendor_data = d_serializer.data['gst_no']
+    vendor_detail = VendorBranch.objects.get(gst=vendor_data)
+    produc_serializer = DebitProductSerializer(product_detail,many=True)
+    print("444444",produc_serializer)
+    vendor_serializer = VBranchSerializer(vendor_detail)
+
+    data={
+        "debit": d_serializer.data,
+        "product": produc_serializer.data,
+        "adress":vendor_serializer.data['address'],
+    }
+    print("kkkkkkkkkkkk",data)
+    return Response(data)
+    # print(purchase_detail)
+    
+    
+@api_view(['GET'])
+def credit_detail(request,pk,credit_pk):
+    sales = SalesInvoice.objects.get(id=pk)
+    credit_detail = CreditNote.objects.get(id=credit_pk,sales_invoice=sales)
+    product_detail = CreditProduct.objects.filter(credit_note=credit_detail)
+    
+    # print("3333",product_detail,"2222",purchase_detail,"11111",branch)
+    c_serializer = CreditNoteSerializer(credit_detail)
+    vendor_data = c_serializer.data['gst_no']
+    vendor_detail = VendorBranch.objects.get(gst=vendor_data)
+    produc_serializer = CreditProductSerializer(product_detail,many=True)
+    print("444444",produc_serializer)
+    vendor_serializer = VBranchSerializer(vendor_detail)
+
+    data={
+        "credit": c_serializer.data,
+        "product": produc_serializer.data,
+        "adress":vendor_serializer.data['address'],
+    }
+    print("kkkkkkkkkkkk",data)
+    return Response(data)
+    # print(purchase_detail)
+    
+    
+    
+@api_view(['POST'])
+@parser_classes([MultiPartParser])
+def create_financial_year(request, pk):
+    company = get_object_or_404(Company, id=pk)
+
+    if request.method == "POST":
+        acknowledgement_files = request.FILES.getlist('acknowledgement_files')
+        computation_files = request.FILES.getlist('computation_files')
+
+        data = request.data.copy()
+        data.pop('acknowledgement_files', None)
+        data.pop('computation_files', None)
+
+        financial_serializer = FinancialYearSerializer(data=data)
+        
+        if financial_serializer.is_valid():
+            financial_instance = financial_serializer.save(company=company)
+
+            # Handle bulk upload for acknowledgement_files
+            for file in acknowledgement_files:
+                financial_instance.acknowledgement.create(file=file)
+
+            # Handle bulk upload for computation_files
+            for file in computation_files:
+                financial_instance.computation.create(file=file)
+
+            return Response({'message': 'Financial Serializer created successfully.'}, status=status.HTTP_201_CREATED)
+
+        return Response(financial_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response({'message': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)

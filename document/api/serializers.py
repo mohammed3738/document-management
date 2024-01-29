@@ -78,16 +78,42 @@ class GstSerializer(ModelSerializer):
         fields = ['id','gst_number','gst_login','gst_password','remarks','filling_freq','attachment']
 
 
-class SalesInvoiceSerializer(ModelSerializer):
-    class Meta:
-        model=SalesInvoice
-        fields = ['id','party_name','month','booking_date','is_reverse','invoice_no','invoice_date','amount','cgst','gst_per','sgst','tds','tcs','in_amount','attach_invoice','attach_eway']
+# class SalesInvoiceSerializer(ModelSerializer):
+#     class Meta:
+#         model=SalesInvoice
+#         fields = ['id','party_name','month','booking_date','is_reverse','invoice_no','invoice_date','amount','cgst','gst_per','sgst','tds','tcs','in_amount','attach_invoice','attach_eway']
 
 
-class CreditNoteSerializer(ModelSerializer):
+class ProductSalesSerializer(serializers.ModelSerializer):
     class Meta:
-        model=CreditNote
-        fields = ['id','month','gst_no','party_name','invoice_date','invoice_no','invoice_type','hsn','description','unit_of_measure','unit','rate','gst_per','taxable_amount','cgst','sgst','igst','total_invoice','tcs','tds','amount_receivable','attach_invoice','attach_eway']
+        model = ProductSales
+        fields = ['id', 'hsn', 'product_name', 'unit_of_measure', 'unit', 'rate', 'gst_per', 'taxable_amount', 'cgst', 'sgst', 'igst']
+
+class Branch2(serializers.ModelSerializer):
+    class Meta:
+        model = Branch
+        fields = ['branch']
+
+class SalesInvoiceSerializer(serializers.ModelSerializer):
+    # total_invoice = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+
+    class Meta:
+        model = SalesInvoice
+        fields = ['id', 'month', 'gst_no', 'party_name','total_tax_amount','total_gst', 'invoice_date', 'invoice_no', 'invoice_type', 'total_invoice', 'tcs', 'tds', 'amount_receivable', 'attach_invoice', 'attach_eway']
+
+class SalesCompanySerializer(serializers.ModelSerializer):
+    # total_invoice = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    branch_details = Branch2(source='branch', read_only=True)  # Nested field to get branch details
+
+    class Meta:
+        model = SalesInvoice
+        fields = ['branch','branch_details','id', 'month', 'gst_no', 'party_name','total_tax_amount','total_gst', 'invoice_date', 'invoice_no', 'invoice_type', 'total_invoice', 'tcs', 'tds', 'amount_receivable', 'attach_invoice', 'attach_eway']
+
+
+# class CreditNoteSerializer(ModelSerializer):
+#     class Meta:
+#         model=CreditNote
+#         fields = ['id','month','gst_no','party_name','invoice_date','invoice_no','invoice_type','hsn','description','unit_of_measure','unit','rate','gst_per','taxable_amount','cgst','sgst','igst','total_invoice','tcs','tds','amount_receivable','attach_invoice','attach_eway']
 
 
 
@@ -99,44 +125,69 @@ class ProductDetailsSerializer(serializers.ModelSerializer):
 
 
 class PurchaseInvoiceSerializer(serializers.ModelSerializer):
-    total_invoice = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    # total_invoice = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
 
     class Meta:
         model = PurchaseInvoice
-        fields = ['id', 'month', 'gst_no', 'party_name', 'invoice_date', 'invoice_no', 'invoice_type', 'total_invoice', 'tcs', 'tds', 'amount_receivable', 'attach_invoice', 'attach_eway']
+        fields = ['id', 'month', 'gst_no', 'party_name','total_tax_amount','total_gst', 'invoice_date', 'invoice_no', 'invoice_type', 'total_invoice', 'tcs', 'tds', 'amount_receivable', 'attach_invoice', 'attach_eway']
+
+class PurchaseCompanySerializer(serializers.ModelSerializer):
+    # total_invoice = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    branch_details = Branch2(source='branch', read_only=True)  # Nested field to get branch details
+
+    class Meta:
+        model = PurchaseInvoice
+        fields = ['branch','branch_details','id', 'month', 'gst_no', 'party_name','total_tax_amount','total_gst', 'invoice_date', 'invoice_no', 'invoice_type', 'total_invoice', 'tcs', 'tds', 'amount_receivable', 'attach_invoice', 'attach_eway']
 
         
+class CreditNoteSerializer(ModelSerializer):
+    class Meta:
+        model=CreditNote
+        fields = ['id', 'month', 'gst_no', 'party_name', 'invoice_date', 'invoice_no', 'invoice_type', 'total_invoice', 'tcs', 'tds', 'amount_receivable', 'attach_invoice', 'attach_eway']
+
+class CreditProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CreditProduct
+        fields = ['id', 'hsn', 'product_name', 'unit_of_measure', 'unit', 'rate', 'gst_per', 'taxable_amount', 'cgst', 'sgst', 'igst']
+
 class DebitNoteSerializer(ModelSerializer):
     class Meta:
         model=DebitNote
-        fields = ['id','party_name','month','invoice_no','invoice_date','amount','cgst','gst_per','sgst','tds','tcs','cr_amount','attach_invoice','attach_eway']
+        fields = ['id', 'month', 'gst_no', 'party_name', 'invoice_date', 'invoice_no', 'invoice_type', 'total_invoice', 'tcs', 'tds', 'amount_receivable', 'attach_invoice', 'attach_eway']
+
+class DebitProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DebitProduct
+        fields = ['id', 'hsn', 'product_name', 'unit_of_measure', 'unit', 'rate', 'gst_per', 'taxable_amount', 'cgst', 'sgst', 'igst']
+
+
 
 class BankStatementSerializer(ModelSerializer):
     class Meta:
         model = BankStatement
-        fields = ['id','month', 'year', 'attachment']  
+        fields = ['id','month', 'year','bank_name','amount', 'attachment']  
 
 
 class InterestCertificateSerializer(ModelSerializer):
     class Meta:
         model = InterestCertificate
-        fields = ['id','month', 'year', 'attachment']
+        fields = ['id','month', 'year','bank_name','amount', 'attachment']
 
 class AssetsPurchasedSerializer(ModelSerializer):
     class Meta:
         model = AssetsPurchasedBill
-        fields = ['id','month', 'year', 'attachment']
+        fields = ['id','month', 'year','bank_name','amount', 'attachment']
 
 class LoanVoucherSerializer(ModelSerializer):
     class Meta:
         model = LoanVoucher
-        fields = ['id','month', 'year', 'attachment']
+        fields = ['id','month', 'year','bank_name','amount', 'attachment']
 
 
 class TdsCertificateSerializer(ModelSerializer):
     class Meta:
         model = TdsCertificate
-        fields = ['id','month', 'year', 'attachment']
+        fields = ['id','month', 'year','amount' ,'attachment']
 
 
 class As26Serializer(ModelSerializer):
@@ -148,12 +199,17 @@ class As26Serializer(ModelSerializer):
 class InvestmentSerializer(ModelSerializer):
     class Meta:
         model = InvestmentStatement
-        fields = ['id','month', 'year', 'attachment', 'type']      
+        fields = ['id','month', 'year','amount' 'attachment', 'type']      
 
 class TaxReturnSerializer(ModelSerializer):
     class Meta:
         model = IncomeTaxReturn
-        fields = ['id','financial_year','return_type','attachment']       
+        fields = ['id','financial_year','return_type','attachment']    
+           
+class FinancialYearSerializer(ModelSerializer):
+    class Meta:
+        model = FinancialYear
+        fields = ['id','return_type','from_date','to_date','month','frequency','computation','client_review','remark','acknowledgement']       
 
 # class CompanySerializer(ModelSerializer):
 

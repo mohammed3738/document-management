@@ -64,25 +64,33 @@ urlpatterns = [
 
     # sales invoice
     path('create-sales/<int:branch_pk>',views.create_sales_invoice,name="create-sales"),
+    path('create-sales-company/<int:pk>',views.create_sales_invoice_company,name="create-sales-company"),
     path('edit-sales/<int:branch_pk>/<int:sales_pk>',views.update_sales_invoice,name="edit-sales"),
     path('delete-sales/<int:branch_pk>/<int:sales_pk>',views.delete_sales_invoice,name="delete-sales"),
+    path('sales-detail/<int:pk>/<int:sales_pk>',views.sales_detail,name="sales-detail"),
+
 
     # purchase invoice
+    
     path('create-purchase/<int:branch_pk>',views.create_purchase_invoice,name="create-purchase"),
+    path('create-purchase-company/<int:pk>',views.create_purchase_invoice_company,name="create-purchase-company"),
     path('edit-purchase/<int:branch_pk>/<int:purchase_pk>',views.update_purchase_invoice,name="edit-purchase"),
-    path('delete-purchase/<int:branch_pk>/<int:purchase_pk>',views.delete_purchase_invoice,name="delete-purchase"),
+    path('purchase-detail/<int:pk>/<int:purchase_pk>',views.purchase_detail,name="purchase-detail"),
 
     # Credit Note
     path('create-credit-note/<int:branch_pk>/<int:sales_pk>',views.create_credit_note,name="create-credit-note"),
+    path('create-credit-company/<int:branch_pk>/<int:sales_pk>',views.create_credit_note_company,name="create-credit-company"),
     path('update-credit-note/<int:branch_pk>/<int:sales_pk>/<int:cr_pk>',views.update_credit_note,name="update-credit-note"),
     path('delete-credit-note/<int:branch_pk>/<int:sales_pk>/<int:cr_pk>',views.delete_credit_note,name="delete-credit-note"),
     path('view-credit-note/<int:branch_pk>/<int:sales_pk>',views.credit_note_view,name="view-credit-note"),
+    path('credit-detail/<int:pk>/<int:credit_pk>',views.credit_detail,name="credit-detail"),
 
     # Debit Note
     path('create-debit-note/<int:branch_pk>/<int:purchase_pk>',views.create_debit_note,name="create-debit-note"),
     path('update-debit-note/<int:branch_pk>/<int:purchase_pk>/<int:db_pk>',views.update_debit_note,name="update-debit-note"),
     path('delete-debit-note/<int:branch_pk>/<int:purchase_pk>/<int:db_pk>',views.delete_debit_note,name="delete-debit-note"),
     path('view-debit-note/<int:branch_pk>/<int:purchase_pk>',views.debit_note_view,name="view-debit-note"),
+    path('debit-detail/<int:pk>/<int:debit_pk>',views.debit_detail,name="debit-detail"),
     # path('edit-sales/<int:branch_pk>/<int:sales_pk>',views.update_sales_invoice,name="edit-sales"),
     # path('delete-sales/<int:branch_pk>/<int:sales_pk>',views.delete_sales_invoice,name="delete-sales"),
 
@@ -127,6 +135,10 @@ urlpatterns = [
     path('create-tax-return/<int:pk>', views.create_tax_return,name="create-tax-return"),
     path('update-tax-return/<int:pk>/<int:tr_pk>', views.update_tax_return,name="update-tax-return"),
     path('delete-tax-return/<int:pk>/<int:tr_pk>', views.delete_tax_return,name="delete-tax-return"),  
+
+
+
+    path('create-financial/<int:pk>', views.create_financial_year,name="create-financial"),
 
     
      
