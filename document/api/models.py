@@ -12,7 +12,9 @@ filing =[
     ('yearly','Yearly'),
 ]
 
-class Company(models.Model):
+
+
+class TaxFirm(models.Model):
     entities = [
         ('proprietorship', 'Proprietorship'),
         ('partnership', 'Partnership'),
@@ -26,6 +28,47 @@ class Company(models.Model):
     ]
 
 
+    tax_firm = models.CharField(max_length=122)
+    date_of_incorporation = models.DateField()
+    contact_person = models.CharField(max_length=122)
+    entity_type = models.CharField(max_length=100, choices=entities)
+    # file_no = models.CharField(max_length=100, unique=True)
+
+
+    # def save(self):
+    #     if not self.file_no and self.pk is None:
+    #         last_invoice = Company.objects.all().order_by("-pk").first()
+    #         last_pk = 0
+    #         if last_invoice:
+    #             last_pk = last_invoice.pk
+        
+    #         self.file_no = "SA-" + str(last_pk+1).zfill(3)
+
+    #     super(Company, self).save()
+
+
+    def __str__(self):
+        return self.tax_firm + "-" 
+
+
+
+
+
+
+class Company(models.Model):
+    entities = [
+        ('proprietorship', 'Proprietorship'),
+        ('partnership', 'Partnership'),
+        ('private_ltd', 'Private Ltd'),
+        ('public_ltd', 'Public Ltd'),
+        ('huf', 'HUF'),
+        ('llp', 'LLP'),
+        ('llc', 'LLC'),
+        ('aop', 'AOP'),
+        ('trust', 'Trust'),
+    ]
+
+    tax_firm=models.ForeignKey(TaxFirm,null=True,blank=True,on_delete=models.CASCADE)
     company = models.CharField(max_length=122)
     date_of_incorporation = models.DateField()
     contact_person = models.CharField(max_length=122)

@@ -5,8 +5,15 @@ from api import views
 urlpatterns = [
     path('', views.Home,name="home"),
     #Company Urls
-    path('create-company', views.create_company,name="create-company"),
-    path('company-list', views.company_list,name="company-list"),
+    path('create-firm', views.create_tax_firm,name="create-firm"),
+    # path('company-list/<int:id>', views.company_list,name="company-list"),
+
+    # path('firm-list', views.tax_firm_list,name="firm-list"),
+
+
+
+    path('create-company/<int:id>', views.create_company,name="create-company"),
+    path('company-list/<int:id>', views.company_list,name="company-list"),
     path('company-update/<int:pk>', views.company_update,name="company-update"),
     path('company-api/<int:pk>', views.company_api,name="company-api"),
     path('company-delete/<int:pk>', views.company_delete,name="company-delete"),

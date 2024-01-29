@@ -85,17 +85,36 @@ def Home(request):
 
 #     return Response({'user_form':user_form.data}, status=status.HTTP_200_OK)
 
+# ////////////////////tax firm views///////////////////////
+@api_view(['POST'])
+def create_tax_firm(request):
+    if request.method == "POST":
+        firm_serializer = TaxFirmSerializer(data=request.data)
+
+        if firm_serializer.is_valid():
+            firm_serializer.save()
+            return Response({"message": "Tax Firm created successfully"}, status=status.HTTP_201_CREATED)
+
+        return Response({"message": "Not created", "errors": firm_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+
+
+
 
 # company create view
 
 
 @api_view(['POST'])
-def create_company(request):
+def create_company(request,id):
+    tax_firm = TaxFirm.objects.filter(id=id)
     if request.method == "POST":
         company_serializer = CompanySerializer(data=request.data)
 
         if company_serializer.is_valid():
-            company_serializer.save()
+            company_serializer.save(tax_firm=tax_firm)
             return Response({"message": "Company created successfully"}, status=status.HTTP_201_CREATED)
 
         return Response({"message:not created"},company_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -103,10 +122,11 @@ def create_company(request):
     return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 @api_view(['GET'])
-def company_list(request):
-    company_lists=Company.objects.all()
+def company_list(request,id):
+    firm_list = TaxFirm.objects.get(id=id)
+    company_lists=Company.objects.filter(tax_firm=firm_list)
     serializer=CompanySerializer(company_lists,many=True)
-    
+    print(serializer)
     return Response(serializer.data)
 
 @api_view(['GET'])

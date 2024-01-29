@@ -7,6 +7,11 @@ from rest_framework import serializers
 
 
 
+class TaxFirmSerializer(ModelSerializer):
+    class Meta:
+        model=TaxFirm
+        fields=['id','tax_firm','date_of_incorporation','contact_person','entity_type']
+
 class CompanySerializer(ModelSerializer):
     class Meta:
         model=Company

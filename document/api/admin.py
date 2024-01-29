@@ -3,6 +3,7 @@ from .models import *
 
 # Register your models here.
 
+admin.site.register(TaxFirm)
 admin.site.register(Company)
 admin.site.register(Branch)
 admin.site.register(OwnerDetails)
