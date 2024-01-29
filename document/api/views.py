@@ -101,7 +101,11 @@ def create_tax_firm(request):
 
 
 
-
+@api_view(['GET'])
+def tax_firm_list(request):
+    firm_list = TaxFirm.objects.all()
+    serializer=TaxFirmSerializer(firm_list,many=True)
+    return Response(serializer.data)
 
 
 # company create view
