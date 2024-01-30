@@ -189,6 +189,7 @@ def company_details(request,pk):
     vendor = ClientVendor.objects.filter(company=company)
     purchase_invoice=PurchaseInvoice.objects.filter(branch__company=company)
     sales_invoice=SalesInvoice.objects.filter(branch__company=company)
+    report=FinancialYear.objects.filter(company=company)
     # branch = purchase_invoice.branch
     
     # filter ends here
@@ -214,6 +215,7 @@ def company_details(request,pk):
     vendor_serializer = VendorSerializer(vendor,many=True)
     purchase_serializer = PurchaseCompanySerializer(purchase_invoice,many=True)
     sales_serializer = SalesCompanySerializer(sales_invoice,many=True)
+    report_serializer = FinancialYearSerializer(report,many=True)
     serialized_data = purchase_serializer.data
     print("purchae:",serialized_data)
   
@@ -241,6 +243,7 @@ def company_details(request,pk):
         "vendor":vendor_serializer.data,
         "purchase":purchase_serializer.data,
         "sales":sales_serializer.data,
+        "report":report_serializer.data,
     }
     return Response(data)
 
@@ -2630,3 +2633,30 @@ def create_financial_year(request, pk):
         return Response(financial_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     return Response({'message': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+
+@api_view(['POST','GET'])
+def financial_update(request,pk,financial_pk):
+    company = get_object_or_404(Company, id=pk)
+    financial_year = get_object_or_404(FinancialYear, id=financial_pk)
+    financial_serializer = FinancialYearSerializer(data=request.data, instance=financial_year)
+
+    if request.method=="POST":
+        if financial_serializer.is_valid():
+           
+            financial_serializer.save(company=company)
+            return Response({'message':'Financial Year updated successfully!'},status=status.HTTP_200_OK)
+        return Response(financial_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method=='GET':
+        # return Response(owner_serializer.initial_data,{'message':"working"})
+        financial_serializer_1 = FinancialYearSerializer(financial_year)
+        return Response(financial_serializer_1.data)
+
+
+@api_view(['DELETE'])
+def financial_delete(request,pk):
+    Financial_year = FinancialYear.objects.get(id=pk)
+    Financial_year.delete()
+    return Response({"message": "Financial Year deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
