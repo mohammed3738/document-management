@@ -2608,8 +2608,8 @@ def create_financial_year(request, pk):
     company = get_object_or_404(Company, id=pk)
 
     if request.method == "POST":
-        acknowledgement_files = request.FILES.getlist('acknowledgement_files')
-        computation_files = request.FILES.getlist('computation_files')
+        acknowledgement_files = request.FILES.getlist('acknowledgement')
+        computation_files = request.FILES.getlist('computation')
 
         data = request.data.copy()
         data.pop('acknowledgement_files', None)
