@@ -100,17 +100,22 @@ def create_tax_firm(request):
     return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
-@api_view(['PUT'])
-def tax_firm_update(request, pk):
-    tax_firm = TaxFirm.objects.get(id=pk)
-    # serializer=CompanySerializer(company)
+@api_view(['POST','GET'])
+def tax_firm_update(request,pk):
+    tax_firm = get_object_or_404(TaxFirm, id=pk)
+    tax_firm_serializer = TaxFirmSerializer(data=request.data, instance=tax_firm)
 
-    # if request.method=="PUT":
-    tax_serializer = TaxFirmSerializer(instance=tax_firm, data=request.data)
-    if tax_serializer.is_valid():
-        tax_serializer.save()
-        return Response({'message':'Tax Firm updated successfully!'},status=status.HTTP_200_OK)
-    return Response(tax_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    if request.method=="POST":
+        if tax_firm_serializer.is_valid():
+           
+            tax_firm_serializer.save()
+            return Response({'message':'Tax Firm updated successfully!'},status=status.HTTP_200_OK)
+        return Response(tax_firm_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method=='GET':
+        # return Response(owner_serializer.initial_data,{'message':"working"})
+        tax_firm_serializer_1 = TaxFirmSerializer(tax_firm)
+        return Response(tax_firm_serializer_1.data)
 
 
 @api_view(['DELETE'])
