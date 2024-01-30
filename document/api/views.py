@@ -2602,39 +2602,6 @@ def credit_detail(request,pk,credit_pk):
     
     
     
-# @api_view(['POST'])
-# @parser_classes([MultiPartParser])
-# def create_financial_year(request, pk):
-#     company = get_object_or_404(Company, id=pk)
-
-#     if request.method == "POST":
-#         acknowledgement_files = request.FILES.getlist('acknowledgement_files')
-#         computation_files = request.FILES.getlist('computation_files')
-
-#         data = request.data.copy()
-#         data.pop('acknowledgement_files', None)
-#         data.pop('computation_files', None)
-
-#         financial_serializer = FinancialYearSerializer(data=data)
-        
-#         if financial_serializer.is_valid():
-#             financial_instance = financial_serializer.save(company=company)
-
-#             # Handle bulk upload for acknowledgement_files
-#             for file in acknowledgement_files:
-#                 financial_instance.acknowledgement.create(file=file)
-
-#             # Handle bulk upload for computation_files
-#             for file in computation_files:
-#                 financial_instance.computation.create(file=file)
-
-#             return Response({'message': 'Financial Serializer created successfully.'}, status=status.HTTP_201_CREATED)
-
-#         return Response(financial_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-#     return Response({'message': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-
 @api_view(['POST'])
 @parser_classes([MultiPartParser])
 def create_financial_year(request, pk):
@@ -2644,12 +2611,9 @@ def create_financial_year(request, pk):
         acknowledgement_files = request.FILES.getlist('acknowledgement_files')
         computation_files = request.FILES.getlist('computation_files')
 
-        # Extract only the fields needed for FinancialYearSerializer
-        data = {
-            'field1': request.data.get('field1'),
-            'field2': request.data.get('field2'),
-            # Add other fields as needed
-        }
+        data = request.data.copy()
+        data.pop('acknowledgement_files', None)
+        data.pop('computation_files', None)
 
         financial_serializer = FinancialYearSerializer(data=data)
         
@@ -2669,6 +2633,42 @@ def create_financial_year(request, pk):
         return Response(financial_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     return Response({'message': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+# @api_view(['POST'])
+# @parser_classes([MultiPartParser])
+# def create_financial_year(request, pk):
+#     company = get_object_or_404(Company, id=pk)
+
+#     if request.method == "POST":
+#         acknowledgement_files = request.FILES.getlist('acknowledgement_files')
+#         computation_files = request.FILES.getlist('computation_files')
+
+#         # Extract only the fields needed for FinancialYearSerializer
+#         data = {
+#             'field1': request.data.get('field1'),
+#             'field2': request.data.get('field2'),
+#             # Add other fields as needed
+#         }
+
+#         financial_serializer = FinancialYearSerializer(data=data)
+        
+#         if financial_serializer.is_valid():
+#             financial_instance = financial_serializer.save(company=company)
+
+#             # Handle bulk upload for acknowledgement_files
+#             for file in acknowledgement_files:
+#                 financial_instance.acknowledgement.create(file=file)
+
+#             # Handle bulk upload for computation_files
+#             for file in computation_files:
+#                 financial_instance.computation.create(file=file)
+
+#             return Response({'message': 'Financial Serializer created successfully.'}, status=status.HTTP_201_CREATED)
+
+#         return Response(financial_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#     return Response({'message': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 @api_view(['POST','GET'])
