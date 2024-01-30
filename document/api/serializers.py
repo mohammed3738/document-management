@@ -232,8 +232,8 @@ class FinancialYearSerializer(serializers.ModelSerializer):
         
 class Financial2YearSerializer(serializers.ModelSerializer):
     class Meta:
-        model = FinancialYear
-        fields = ['computation', 'acknowledgement', 'date_field']
+        model = Financial2Year
+        fields = ['id','computation', 'acknowledgement']
 
 # class CompanySerializer(ModelSerializer):
 
