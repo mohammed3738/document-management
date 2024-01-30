@@ -694,9 +694,7 @@ class FinancialYear(models.Model):
         return self.return_type
 
 class ComputationFile(models.Model):
-    financial_year = models.ForeignKey(FinancialYear, on_delete=models.CASCADE)
-    file = models.FileField(null=True,blank=True)
+    file = models.FileField(null=True, blank=True)
 
 class AcknowledgementFile(models.Model):
-    financial_year = models.ForeignKey(FinancialYear, on_delete=models.CASCADE)
-    file = models.FileField(null=True,blank=True)
+    file = models.FileField(null=True, blank=True)

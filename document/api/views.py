@@ -2609,8 +2609,8 @@ def create_financial_year(request, pk):
 
     if request.method == "POST":
         # Get files from the request
-        computation_file = request.FILES.get('computation', None)
-        acknowledgement_file = request.FILES.get('acknowledgement', None)
+        computation_files = request.FILES.getlist('computation')
+        acknowledgement_files = request.FILES.getlist('acknowledgement')
 
         # Remove file fields from data
         data = request.data.copy()
@@ -2622,15 +2622,13 @@ def create_financial_year(request, pk):
         if financial_serializer.is_valid():
             financial_instance = financial_serializer.save(company=company)
 
-            # Save computation file
-            if computation_file:
-                financial_instance.computation = computation_file
-                financial_instance.save()
+            # Save computation files
+            for file in computation_files:
+                ComputationFile.objects.create(file=file, financial_year=financial_instance)
 
-            # Save acknowledgement file
-            if acknowledgement_file:
-                financial_instance.acknowledgement = acknowledgement_file
-                financial_instance.save()
+            # Save acknowledgement files
+            for file in acknowledgement_files:
+                AcknowledgementFile.objects.create(file=file, financial_year=financial_instance)
 
             return Response({'message': 'Financial Serializer created successfully.'}, status=status.HTTP_201_CREATED)
 
