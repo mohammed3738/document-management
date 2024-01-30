@@ -211,10 +211,24 @@ class TaxReturnSerializer(ModelSerializer):
         model = IncomeTaxReturn
         fields = ['id','financial_year','return_type','attachment']    
            
-class FinancialYearSerializer(ModelSerializer):
+class ComputationFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ComputationFile
+        fields = ('id', 'file')
+
+class AcknowledgementFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AcknowledgementFile
+        fields = ('id', 'file')
+
+class FinancialYearSerializer(serializers.ModelSerializer):
+    computation = ComputationFileSerializer(many=True, read_only=True)
+    acknowledgement = AcknowledgementFileSerializer(many=True, read_only=True)
+
     class Meta:
         model = FinancialYear
-        fields = ['id','return_type','from_date','to_date','month','frequency','computation','client_review','remark','acknowledgement']       
+        fields = ('id', 'company', 'return_type', 'from_date', 'to_date', 'month',
+                  'frequency', 'computation', 'client_review', 'remark', 'acknowledgement')   
 
 # class CompanySerializer(ModelSerializer):
 
