@@ -695,8 +695,8 @@ class FinancialYear(models.Model):
 
 class ComputationFile(models.Model):
     financial_year = models.ForeignKey(FinancialYear, on_delete=models.CASCADE)
-    file = models.FileField(upload_to='computation_files/')
+    file = models.FileField(null=True,blank=True)
 
 class AcknowledgementFile(models.Model):
     financial_year = models.ForeignKey(FinancialYear, on_delete=models.CASCADE)
-    file = models.FileField(upload_to='acknowledgement_files/')
+    file = models.FileField(null=True,blank=True)
