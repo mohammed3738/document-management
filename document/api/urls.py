@@ -7,6 +7,8 @@ urlpatterns = [
     #Company Urls
     path('create-firm', views.create_tax_firm,name="create-firm"),
     path('tax-firm-list', views.tax_firm_list,name="tax-firm-list"),
+    path('firm-update/<int:pk>', views.tax_firm_update,name="firm-update"),
+    path('firm-delete/<int:pk>', views.tax_firm_delete,name="firm-delete"),
 
     # path('company-list/<int:id>', views.company_list,name="company-list"),
 
