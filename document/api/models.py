@@ -686,7 +686,7 @@ class FinancialYear(models.Model):
     frequency =models.CharField(max_length=50,choices=filing,null=True,blank=True)
     computation =models.FileField(null=True,blank=True)
     client_review =models.BooleanField(null=True,blank=True)
-    remark =models.BooleanField(null=True,blank=True)
+    remark =models.CharField(max_length=250,null=True,blank=True)
     acknowledgement =models.FileField()
 
 
