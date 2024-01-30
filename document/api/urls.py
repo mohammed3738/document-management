@@ -153,7 +153,7 @@ urlpatterns = [
     path('update-financial/<int:pk>/<int:financial_year>', views.financial_update,name="update-financial"),
     path('delete-financial/<int:pk>', views.financial_delete,name="delete-financial"),
 
-    path('create-financial2/<int:pk>', views.create_financial2_year,name="create-financial2"),
+    path('create-financial2', views.create_financial2_year,name="create-financial2"),
 
      
     
