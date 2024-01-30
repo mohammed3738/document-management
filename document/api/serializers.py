@@ -229,6 +229,11 @@ class FinancialYearSerializer(serializers.ModelSerializer):
         model = FinancialYear
         fields = ('id', 'company', 'return_type', 'from_date', 'to_date', 'month',
                   'frequency', 'computation', 'client_review', 'remark', 'acknowledgement')   
+        
+class Financial2YearSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FinancialYear
+        fields = ['computation', 'acknowledgement', 'date_field']
 
 # class CompanySerializer(ModelSerializer):
 

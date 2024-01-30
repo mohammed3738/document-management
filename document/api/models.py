@@ -698,3 +698,15 @@ class ComputationFile(models.Model):
 
 class AcknowledgementFile(models.Model):
     file = models.FileField(null=True, blank=True)
+
+
+
+
+
+class Financial2Year(models.Model):
+    computation = models.FileField(upload_to='computation_files/', blank=True, null=True)
+    acknowledgement = models.FileField(upload_to='acknowledgement_files/', blank=True, null=True)
+    date_field = models.DateField()
+
+    def __str__(self):
+        return f"Financial Year - {self.date_field}"

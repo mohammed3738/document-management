@@ -2637,6 +2637,40 @@ def create_financial_year(request, pk):
     return Response({'message': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
+
+
+@api_view(['POST'])
+@parser_classes([MultiPartParser])
+def create_financial2_year(request):
+    if request.method == "POST":
+        computation_files = request.FILES.getlist('computation')
+        acknowledgement_files = request.FILES.getlist('acknowledgement')
+        date_field = request.data.get('date_field')
+
+        financial_serializer = Financial2YearSerializer(data={'date_field': date_field})
+
+        if financial_serializer.is_valid():
+            financial_instance = financial_serializer.save()
+
+            # Save computation files
+            for file in computation_files:
+                financial_instance.computation = file
+                financial_instance.save()
+
+            # Save acknowledgement files
+            for file in acknowledgement_files:
+                financial_instance.acknowledgement = file
+                financial_instance.save()
+
+            return Response({'message': 'Financial Year created successfully.'}, status=status.HTTP_201_CREATED)
+
+        return Response(financial_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response({'message': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+
+
 # @api_view(['POST'])
 # @parser_classes([MultiPartParser])
 # def create_financial_year(request, pk):
