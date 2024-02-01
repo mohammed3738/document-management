@@ -2793,7 +2793,7 @@ class YourModelCreateView(generics.CreateAPIView):
         client_review = request.data.get('client_review')
         remark = request.data.get('remark')
         company_id = kwargs.get('company_id')
-
+        print("from_date",from_date)
         try:
             # Get the Company instance based on the provided ID
             company = Company.objects.get(id=company_id)
@@ -2823,3 +2823,31 @@ class YourModelCreateView(generics.CreateAPIView):
         # Return a response
         serializer = YourModelSerializer(instance)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+
+
+@api_view(['GET'])
+def report_detail(request,pk):
+    report = YourModel.objects.get(id=pk)
+    computation = ComputationFile.objects.filter(your_model=report)
+    # branch = purchase_invoice.branch
+    
+    # filter ends here
+    
+    computation_serializer = ComputationFileModelSerializer(computation,many=True)
+    
+
+  
+       
+
+    data = {
+        "computation_serializer": computation_serializer.data,
+    
+    }
+    return Response(data)
+
+
+
+
+
