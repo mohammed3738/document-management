@@ -710,7 +710,14 @@ class Financial2Year(models.Model):
   
   
 class YourModel(models.Model):
-    date = models.DateField(null=True, blank=True)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, null=True, blank=True)
+    return_type = models.CharField(max_length=50, choices=returns, null=True, blank=True)
+    from_date = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True)
+    to_date = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True)
+    month = models.CharField(max_length=100, null=True, blank=True)
+    frequency = models.CharField(max_length=50, choices=filing, null=True, blank=True)
+    client_review = models.BooleanField(null=True, blank=True)
+    remark = models.CharField(max_length=250, null=True, blank=True)
 
 class ComputationFileModel(models.Model):
     your_model = models.ForeignKey(YourModel, related_name='computation', on_delete=models.CASCADE)

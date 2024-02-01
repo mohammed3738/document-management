@@ -156,7 +156,7 @@ urlpatterns = [
     path('delete-financial/<int:pk>', views.financial_delete,name="delete-financial"),
 
     path('create-financial2', views.create_financial2_year,name="create-financial2"),
-    path('create/', YourModelCreateView.as_view(), name='create'),
+    path('create-report/<int:company_id>', YourModelCreateView.as_view(), name='create-report'),
 
      
     

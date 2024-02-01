@@ -269,4 +269,4 @@ class YourModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = YourModel
-        fields = ['date', 'computation', 'acknowledgement']
+        fields = ['id','return_type','from_date','to_date','month','frequency','client_review','remark','computation', 'acknowledgement']

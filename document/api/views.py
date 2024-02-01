@@ -190,7 +190,7 @@ def company_details(request,pk):
     vendor = ClientVendor.objects.filter(company=company)
     purchase_invoice=PurchaseInvoice.objects.filter(branch__company=company)
     sales_invoice=SalesInvoice.objects.filter(branch__company=company)
-    report=FinancialYear.objects.filter(company=company)
+    report=YourModel.objects.filter(company=company)
     # branch = purchase_invoice.branch
     
     # filter ends here
@@ -216,8 +216,9 @@ def company_details(request,pk):
     vendor_serializer = VendorSerializer(vendor,many=True)
     purchase_serializer = PurchaseCompanySerializer(purchase_invoice,many=True)
     sales_serializer = SalesCompanySerializer(sales_invoice,many=True)
-    report_serializer = FinancialYearSerializer(report,many=True)
+    
     serialized_data = purchase_serializer.data
+    report_serializer = YourModelSerializer(report,many=True)
     print("purchae:",serialized_data)
   
        
@@ -2745,6 +2746,35 @@ def financial_delete(request,pk):
 
 
 
+# class YourModelCreateView(generics.CreateAPIView):
+#     queryset = YourModel.objects.all()
+#     serializer_class = YourModelSerializer
+
+#     def create(self, request, *args, **kwargs):
+#         # Extract 'computation' and 'acknowledgement' files
+#         computation_files = request.FILES.getlist('computation')
+#         acknowledgement_files = request.FILES.getlist('acknowledgement')
+
+#         # Extract other fields from request.data
+#         date = request.data.get('date')
+
+#         # Create the main model instance with other fields
+#         instance = YourModel.objects.create(date=date)
+
+#         # Associate 'computation' files with the instance
+#         for computation_file in computation_files:
+#             instance.computation.create(file=computation_file)
+
+#         # Associate 'acknowledgement' files with the instance
+#         for acknowledgement_file in acknowledgement_files:
+#             instance.acknowledgement.create(file=acknowledgement_file)
+
+#         # Return a response
+#         serializer = YourModelSerializer(instance)
+#         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+
 class YourModelCreateView(generics.CreateAPIView):
     queryset = YourModel.objects.all()
     serializer_class = YourModelSerializer
@@ -2755,10 +2785,32 @@ class YourModelCreateView(generics.CreateAPIView):
         acknowledgement_files = request.FILES.getlist('acknowledgement')
 
         # Extract other fields from request.data
-        date = request.data.get('date')
+        return_type = request.data.get('return_type')
+        from_date = request.data.get('from_date')
+        to_date = request.data.get('to_date')
+        month = request.data.get('month')
+        frequency = request.data.get('frequency')
+        client_review = request.data.get('client_review')
+        remark = request.data.get('remark')
+        company_id = kwargs.get('company_id')
+
+        try:
+            # Get the Company instance based on the provided ID
+            company = Company.objects.get(id=company_id)
+        except Company.DoesNotExist:
+            return Response({"message": "Company not found"}, status=status.HTTP_404_NOT_FOUND)
 
         # Create the main model instance with other fields
-        instance = YourModel.objects.create(date=date)
+        instance = YourModel.objects.create(
+            return_type=return_type,
+            from_date=from_date,
+            to_date=to_date,
+            month=month,
+            frequency=frequency,
+            client_review=client_review,
+            remark=remark,
+            company=company
+        )
 
         # Associate 'computation' files with the instance
         for computation_file in computation_files:
