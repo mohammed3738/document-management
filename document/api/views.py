@@ -8,7 +8,8 @@ from django.core.mail import send_mail
 from .forms import *
 from rest_framework.parsers import MultiPartParser
 
-
+from rest_framework import generics
+from .serializers import YourModelSerializer
 
 from rest_framework import status
 
@@ -2643,26 +2644,33 @@ def create_financial_year(request, pk):
 @parser_classes([MultiPartParser])
 def create_financial2_year(request):
     if request.method == "POST":
-        computation_files = request.FILES.getlist('computation')
-        acknowledgement_files = request.FILES.getlist('acknowledgement')
-        date_field = request.data.get('date_field')
-
-        financial_serializer = Financial2YearSerializer(data={'date_field': date_field})
+        financial_serializer = Financial2YearSerializer(data=request.data)
 
         if financial_serializer.is_valid():
+            # Access the computation and acknowledgement files data from request.data
+            computation_files_data = request.data
+            print('computation_files_data',computation_files_data)
+
+            # Create a Financial2Year instance with other fields from serializer
             financial_instance = financial_serializer.save()
 
             # Save computation files
-            for file in computation_files:
-                financial_instance.computation = file
-                financial_instance.save()
+            for computation_file_data in computation_files_data:
+                computation_instance = ComputationFile.objects.create(
+                    file=computation_file_data,
+                    financial_instance=financial_instance
+                )
+                # Customize the above line based on your model structure
 
             # Save acknowledgement files
-            for file in acknowledgement_files:
-                financial_instance.acknowledgement = file
-                financial_instance.save()
+            # for acknowledgement_file_data in acknowledgement_files_data:
+            #     acknowledgement_instance = AcknowledgementFile.objects.create(
+            #         file=acknowledgement_file_data,
+            #         financial_instance=financial_instance
+            #     )
+                # Customize the above line based on your model structure
 
-            return Response({'message': 'Financial Year created successfully.'}, status=status.HTTP_201_CREATED)
+            return Response({'message': 'Files processed successfully'}, status=status.HTTP_201_CREATED)
 
         return Response(financial_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -2731,3 +2739,35 @@ def financial_delete(request,pk):
     Financial_year = FinancialYear.objects.get(id=pk)
     Financial_year.delete()
     return Response({"message": "Financial Year deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
+
+
+
+
+
+class YourModelCreateView(generics.CreateAPIView):
+    queryset = YourModel.objects.all()
+    serializer_class = YourModelSerializer
+
+    def create(self, request, *args, **kwargs):
+        # Extract 'computation' and 'acknowledgement' files
+        computation_files = request.FILES.getlist('computation')
+        acknowledgement_files = request.FILES.getlist('acknowledgement')
+
+        # Extract other fields from request.data
+        date = request.data.get('date')
+
+        # Create the main model instance with other fields
+        instance = YourModel.objects.create(date=date)
+
+        # Associate 'computation' files with the instance
+        for computation_file in computation_files:
+            instance.computation.create(file=computation_file)
+
+        # Associate 'acknowledgement' files with the instance
+        for acknowledgement_file in acknowledgement_files:
+            instance.acknowledgement.create(file=acknowledgement_file)
+
+        # Return a response
+        serializer = YourModelSerializer(instance)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

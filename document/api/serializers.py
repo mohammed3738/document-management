@@ -249,3 +249,24 @@ class Financial2YearSerializer(serializers.ModelSerializer):
 #   "password1": "123456789#",
 #   "password2": "123456789#"
 # }
+
+
+# testing
+
+class ComputationFileModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ComputationFileModel
+        fields = ['file']
+
+class AcknowledgementFileModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AcknowledgementFileModel
+        fields = ['file']
+
+class YourModelSerializer(serializers.ModelSerializer):
+    computation = ComputationFileModelSerializer(many=True, read_only=True)
+    acknowledgement = AcknowledgementFileModelSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = YourModel
+        fields = ['date', 'computation', 'acknowledgement']

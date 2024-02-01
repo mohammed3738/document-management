@@ -707,5 +707,18 @@ class Financial2Year(models.Model):
     computation = models.FileField(blank=True, null=True)
     acknowledgement = models.FileField(blank=True, null=True)
 
-    def __str__(self):
-        return self.id
+  
+  
+class YourModel(models.Model):
+    date = models.DateField(null=True, blank=True)
+
+class ComputationFileModel(models.Model):
+    your_model = models.ForeignKey(YourModel, related_name='computation', on_delete=models.CASCADE)
+    file = models.FileField(upload_to='computation/')
+
+class AcknowledgementFileModel(models.Model):
+    your_model = models.ForeignKey(YourModel, related_name='acknowledgement', on_delete=models.CASCADE)
+    file = models.FileField(upload_to='acknowledgement/')
+
+
+    
