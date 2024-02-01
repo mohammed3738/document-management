@@ -2825,6 +2825,23 @@ class YourModelCreateView(generics.CreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+@api_view(['POST','GET'])
+def financial_update(request,pk,financial_pk):
+    company = get_object_or_404(Company, id=pk)
+    financial_year = get_object_or_404(FinancialYear, id=financial_pk)
+    financial_serializer = FinancialYearSerializer(data=request.data, instance=financial_year)
+
+    if request.method=="POST":
+        if financial_serializer.is_valid():
+           
+            financial_serializer.save(company=company)
+            return Response({'message':'Financial Year updated successfully!'},status=status.HTTP_200_OK)
+        return Response(financial_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method=='GET':
+        # return Response(owner_serializer.initial_data,{'message':"working"})
+        financial_serializer_1 = FinancialYearSerializer(financial_year)
+        return Response(financial_serializer_1.data)
 
 
 @api_view(['GET'])
@@ -2832,7 +2849,7 @@ def report_detail(request,pk):
     report = YourModel.objects.get(id=pk)
     computation = ComputationFile.objects.filter(your_model=report)
     # branch = purchase_invoice.branch
-    
+    print('computation',computation)
     # filter ends here
     
     computation_serializer = ComputationFileModelSerializer(computation,many=True)
