@@ -1,7 +1,7 @@
 
 from django.urls import path
 from api import views
-from .views import YourModelCreateView
+from .views import YourModelCreateView,YourModelUpdateView
 
 
 urlpatterns = [
@@ -157,6 +157,7 @@ urlpatterns = [
 
     path('create-financial2', views.create_financial2_year,name="create-financial2"),
     path('create-report/<int:company_id>', YourModelCreateView.as_view(), name='create-report'),
+    path('update-report/<int:company_id>/<int:pk>', YourModelUpdateView.as_view(), name='update-report'),
     path('report-detail/<int:pk>', views.report_detail, name='report-detail'),
 
      

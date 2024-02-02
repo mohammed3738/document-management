@@ -2825,23 +2825,70 @@ class YourModelCreateView(generics.CreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-@api_view(['POST','GET'])
-def financial_update(request,pk,financial_pk):
-    company = get_object_or_404(Company, id=pk)
-    financial_year = get_object_or_404(FinancialYear, id=financial_pk)
-    financial_serializer = FinancialYearSerializer(data=request.data, instance=financial_year)
+# @api_view(['POST','GET'])
+# def financial_update(request,pk,financial_pk):
+#     company = get_object_or_404(Company, id=pk)
+#     financial_year = get_object_or_404(FinancialYear, id=financial_pk)
+#     financial_serializer = FinancialYearSerializer(data=request.data, instance=financial_year)
 
-    if request.method=="POST":
-        if financial_serializer.is_valid():
+#     if request.method=="POST":
+#         if financial_serializer.is_valid():
            
-            financial_serializer.save(company=company)
-            return Response({'message':'Financial Year updated successfully!'},status=status.HTTP_200_OK)
-        return Response(financial_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#             financial_serializer.save(company=company)
+#             return Response({'message':'Financial Year updated successfully!'},status=status.HTTP_200_OK)
+#         return Response(financial_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    elif request.method=='GET':
-        # return Response(owner_serializer.initial_data,{'message':"working"})
-        financial_serializer_1 = FinancialYearSerializer(financial_year)
-        return Response(financial_serializer_1.data)
+#     elif request.method=='GET':
+#         # return Response(owner_serializer.initial_data,{'message':"working"})
+#         financial_serializer_1 = FinancialYearSerializer(financial_year)
+#         return Response(financial_serializer_1.data)
+
+class YourModelUpdateView(generics.UpdateAPIView):
+    queryset = YourModel.objects.all()
+    serializer_class = YourModelSerializer
+
+    def update(self, request, *args, **kwargs):
+        # Extract 'computation' and 'acknowledgement' files
+        computation_files = request.FILES.getlist('computation')
+        acknowledgement_files = request.FILES.getlist('acknowledgement')
+
+        # Get the existing instance to update
+        instance = self.get_object()
+
+        # Extract other fields from request.data
+        return_type = request.data.get('return_type', instance.return_type)
+        from_date = request.data.get('from_date', instance.from_date)
+        to_date = request.data.get('to_date', instance.to_date)
+        month = request.data.get('month', instance.month)
+        frequency = request.data.get('frequency', instance.frequency)
+        client_review = request.data.get('client_review', instance.client_review)
+        remark = request.data.get('remark', instance.remark)
+
+        # Update the fields in the instance
+        instance.return_type = return_type
+        instance.from_date = from_date
+        instance.to_date = to_date
+        instance.month = month
+        instance.frequency = frequency
+        instance.client_review = client_review
+        instance.remark = remark
+
+        # Save the changes
+        instance.save()
+
+        # Associate 'computation' files with the instance
+        for computation_file in computation_files:
+            instance.computation.create(file=computation_file)
+
+        # Associate 'acknowledgement' files with the instance
+        for acknowledgement_file in acknowledgement_files:
+            instance.acknowledgement.create(file=acknowledgement_file)
+
+        # Return a response
+        serializer = YourModelSerializer(instance)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 
 
 @api_view(['GET'])
