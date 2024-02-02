@@ -2847,7 +2847,7 @@ def financial_update(request,pk,financial_pk):
 @api_view(['GET'])
 def report_detail(request,pk):
     report = YourModel.objects.get(id=pk)
-    computation = ComputationFile.objects.filter(your_model=report)
+    computation = ComputationFileModel.objects.filter(your_model=report)
     # branch = purchase_invoice.branch
     print('computation',computation)
     # filter ends here
