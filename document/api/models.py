@@ -716,8 +716,18 @@ class YourModel(models.Model):
     to_date = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True)
     month = models.CharField(max_length=100, null=True, blank=True)
     frequency = models.CharField(max_length=50, choices=filing, null=True, blank=True)
-    client_review = models.BooleanField()
+    client_review = models.BooleanField(null=True, blank=True)
     remark = models.CharField(max_length=250, null=True, blank=True)
+
+
+
+    def save(self, *args, **kwargs):
+        # If client_review is not provided, default it to False
+        if self.client_review is None:
+            self.client_review = False
+        super().save(*args, **kwargs)
+
+
 
 class ComputationFileModel(models.Model):
     your_model = models.ForeignKey(YourModel, related_name='computation', on_delete=models.CASCADE)
