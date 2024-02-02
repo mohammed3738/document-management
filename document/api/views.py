@@ -12,6 +12,7 @@ from rest_framework import generics
 from .serializers import YourModelSerializer
 
 from rest_framework import status
+from rest_framework.generics import RetrieveUpdateAPIView
 
 
 
@@ -2843,11 +2844,18 @@ class YourModelCreateView(generics.CreateAPIView):
 #         financial_serializer_1 = FinancialYearSerializer(financial_year)
 #         return Response(financial_serializer_1.data)
 
-class YourModelUpdateView(generics.UpdateAPIView):
+class YourModelUpdateView(RetrieveUpdateAPIView):
     queryset = YourModel.objects.all()
     serializer_class = YourModelSerializer
 
+    def retrieve(self, request, *args, **kwargs):
+        # Handle GET request to retrieve data for editing
+        instance = self.get_object()
+        serializer = YourModelSerializer(instance)
+        return Response(serializer.data)
+
     def update(self, request, *args, **kwargs):
+        # Handle PATCH request to update data
         # Extract 'computation' and 'acknowledgement' files
         computation_files = request.FILES.getlist('computation')
         acknowledgement_files = request.FILES.getlist('acknowledgement')
@@ -2855,38 +2863,26 @@ class YourModelUpdateView(generics.UpdateAPIView):
         # Get the existing instance to update
         instance = self.get_object()
 
-        # Extract other fields from request.data
-        return_type = request.data.get('return_type', instance.return_type)
-        from_date = request.data.get('from_date', instance.from_date)
-        to_date = request.data.get('to_date', instance.to_date)
-        month = request.data.get('month', instance.month)
-        frequency = request.data.get('frequency', instance.frequency)
-        client_review = request.data.get('client_review', instance.client_review)
-        remark = request.data.get('remark', instance.remark)
+        # Use the serializer to handle data validation and conversion
+        serializer = YourModelSerializer(instance, data=request.data, partial=True)
+        
+        if serializer.is_valid():
+            # Save the changes
+            serializer.save()
 
-        # Update the fields in the instance
-        instance.return_type = return_type
-        instance.from_date = from_date
-        instance.to_date = to_date
-        instance.month = month
-        instance.frequency = frequency
-        instance.client_review = client_review
-        instance.remark = remark
+            # Associate 'computation' files with the instance
+            for computation_file in computation_files:
+                instance.computation.create(file=computation_file)
 
-        # Save the changes
-        instance.save()
+            # Associate 'acknowledgement' files with the instance
+            for acknowledgement_file in acknowledgement_files:
+                instance.acknowledgement.create(file=acknowledgement_file)
 
-        # Associate 'computation' files with the instance
-        for computation_file in computation_files:
-            instance.computation.create(file=computation_file)
+            # Return a response
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
-        # Associate 'acknowledgement' files with the instance
-        for acknowledgement_file in acknowledgement_files:
-            instance.acknowledgement.create(file=acknowledgement_file)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        # Return a response
-        serializer = YourModelSerializer(instance)
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 
