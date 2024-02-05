@@ -36,6 +36,7 @@ class TaxFirm(models.Model):
     gst = models.CharField(max_length=100,null=True,blank=True)
     username = models.CharField(max_length=100,null=True,blank=True)
     password = models.CharField(max_length=100,null=True,blank=True)
+    logo = models.FileField(null=True,blank=True)
     # file_no = models.CharField(max_length=100, unique=True)
 
 
