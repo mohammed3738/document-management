@@ -32,6 +32,10 @@ class TaxFirm(models.Model):
     date_of_incorporation = models.DateField()
     contact_person = models.CharField(max_length=122)
     entity_type = models.CharField(max_length=100, choices=entities)
+    pan = models.CharField(max_length=100,null=True,blank=True)
+    gst = models.CharField(max_length=100,null=True,blank=True)
+    username = models.CharField(max_length=100,null=True,blank=True)
+    password = models.CharField(max_length=100,null=True,blank=True)
     # file_no = models.CharField(max_length=100, unique=True)
 
 
