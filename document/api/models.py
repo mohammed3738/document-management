@@ -27,33 +27,18 @@ class TaxFirm(models.Model):
         ('trust', 'Trust'),
     ]
 
-
     tax_firm = models.CharField(max_length=122)
-    date_of_incorporation = models.DateField()
+    date_of_incorporation = models.DateField(null=True, blank=True)
     contact_person = models.CharField(max_length=122)
     entity_type = models.CharField(max_length=100, choices=entities)
-    pan = models.CharField(max_length=100,null=True,blank=True)
-    gst = models.CharField(max_length=100,null=True,blank=True)
-    username = models.CharField(max_length=100,null=True,blank=True)
-    password = models.CharField(max_length=100,null=True,blank=True)
-    logo = models.FileField(null=True,blank=True)
-    # file_no = models.CharField(max_length=100, unique=True)
-
-
-    # def save(self):
-    #     if not self.file_no and self.pk is None:
-    #         last_invoice = Company.objects.all().order_by("-pk").first()
-    #         last_pk = 0
-    #         if last_invoice:
-    #             last_pk = last_invoice.pk
-        
-    #         self.file_no = "SA-" + str(last_pk+1).zfill(3)
-
-    #     super(Company, self).save()
-
+    pan = models.CharField(max_length=100, null=True, blank=True)
+    gst = models.CharField(max_length=100, null=True, blank=True)
+    username = models.CharField(max_length=100, null=True, blank=True)
+    password = models.CharField(max_length=100, null=True, blank=True)
+    logo = models.FileField(null=True, blank=True)
 
     def __str__(self):
-        return self.tax_firm + "-" 
+        return self.tax_firm
 
 
 

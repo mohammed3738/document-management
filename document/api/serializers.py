@@ -7,10 +7,17 @@ from rest_framework import serializers
 
 
 
-class TaxFirmSerializer(ModelSerializer):
+class TaxFirmSerializer(serializers.ModelSerializer):
+    logo = serializers.FileField(required=False)  # Assuming logo is a FileField in your model
+
     class Meta:
-        model=TaxFirm
-        fields=['id','tax_firm','date_of_incorporation','contact_person','entity_type','username','password','logo','gst','pan']
+        model = TaxFirm
+        fields = ['tax_firm', 'date_of_incorporation', 'contact_person', 'entity_type', 'pan', 'gst', 'username', 'password', 'logo']
+
+    def create(self, validated_data):
+        logo = validated_data.pop('logo', None)
+        tax_firm = TaxFirm.objects.create(logo=logo, **validated_data)
+        return tax_firm
 
 class CompanySerializer(ModelSerializer):
     class Meta:

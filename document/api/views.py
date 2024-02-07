@@ -94,6 +94,7 @@ def create_tax_firm(request):
         firm_serializer = TaxFirmSerializer(data=request.data)
 
         if firm_serializer.is_valid():
+            print("tax_firm_serializer",firm_serializer)
             firm_serializer.save()
             return Response({"message": "Tax Firm created successfully"}, status=status.HTTP_201_CREATED)
 
@@ -106,9 +107,9 @@ def create_tax_firm(request):
 def tax_firm_update(request,pk):
     tax_firm = get_object_or_404(TaxFirm, id=pk)
     tax_firm_serializer = TaxFirmSerializer(data=request.data, instance=tax_firm)
-
     if request.method=="POST":
         if tax_firm_serializer.is_valid():
+            
            
             tax_firm_serializer.save()
             return Response({'message':'Tax Firm updated successfully!'},status=status.HTTP_200_OK)
