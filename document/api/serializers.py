@@ -12,7 +12,7 @@ class TaxFirmSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TaxFirm
-        fields = ['tax_firm', 'date_of_incorporation', 'contact_person', 'entity_type', 'pan', 'gst', 'username', 'password', 'logo']
+        fields = ['id','tax_firm', 'date_of_incorporation', 'contact_person', 'entity_type', 'pan', 'gst', 'username', 'password', 'logo']
 
     def create(self, validated_data):
         logo = validated_data.pop('logo', None)
