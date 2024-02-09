@@ -2912,3 +2912,22 @@ def report_detail(request,pk):
 
 
 
+@api_view(['GET'])
+def taxfirm_view(request,pk):
+    tax = TaxFirm.objects.get(id=pk)
+    # taxfirm = TaxFirmSerializer.objects.filter(your_model=report)
+    # branch = purchase_invoice.branch
+    print('tax firm',tax)
+    # filter ends here
+    
+    taxfirm_serializer = TaxFirmSerializer(tax,many=True)
+    
+
+  
+       
+
+    data = {
+        "taxfirm_serializer": taxfirm_serializer.data,
+    
+    }
+    return Response(data)
