@@ -63,6 +63,8 @@ class Company(models.Model):
     date_of_incorporation = models.DateField()
     contact_person = models.CharField(max_length=122)
     entity_type = models.CharField(max_length=100, choices=entities)
+    gst = models.CharField(max_length=100,null=True,blank=True)
+    pan = models.CharField(max_length=100,null=True,blank=True)
     username = models.CharField(max_length=100,null=True,blank=True)
     password = models.CharField(max_length=100,null=True,blank=True)
     logo = models.FileField(null=True, blank=True)
@@ -198,7 +200,7 @@ class Ptec(models.Model):
     
 
 class Pan(models.Model):
-    company = models.ForeignKey(Company,on_delete=models.CASCADE,null=True, blank=True)
+    company = models.ForeignKey(Company,related_name='pan_details', on_delete=models.CASCADE,null=True, blank=True)
     pan_number = models.CharField(max_length=255)
     pan_login = models.CharField(max_length=255)
     pan_password = models.CharField(max_length=100)
