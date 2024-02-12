@@ -1,5 +1,6 @@
 from django.shortcuts import render,redirect
 from rest_framework.response import Response
+from django.http import JsonResponse
 from rest_framework.decorators import api_view, parser_classes
 from .models import*
 from .serializers import *
@@ -120,12 +121,16 @@ def tax_firm_update(request,pk):
         tax_firm_serializer_1 = TaxFirmSerializer(tax_firm)
         return Response(tax_firm_serializer_1.data)
 
-
 @api_view(['DELETE'])
-def tax_firm_delete(request,pk):
-    tax_firm = TaxFirm.objects.get(id=pk)
+def tax_firm_delete(request, pk):
+    try:
+        tax_firm = TaxFirm.objects.get(id=pk)
+    except TaxFirm.DoesNotExist:
+        return Response({"message": "Tax Firm not found"}, status=status.HTTP_404_NOT_FOUND)
+    
     tax_firm.delete()
-    return Response({"message": "Tax Firm deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+    return JsonResponse({"message": "Tax Firm deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
 
 @api_view(['GET'])
 def tax_firm_list(request):
@@ -2914,14 +2919,15 @@ def report_detail(request,pk):
 
 @api_view(['GET'])
 def taxfirm_view(request,pk):
-    tax = TaxFirm.objects.get(id=pk)
-    # taxfirm = TaxFirmSerializer.objects.filter(your_model=report)
+    # tax = TaxFirm.objects.get(id=pk)
+    taxfirm = TaxFirm.objects.get(id=pk)
     # branch = purchase_invoice.branch
-    print('tax firm',tax)
+    print('tax firm',taxfirm)
     # filter ends here
     
-    taxfirm_serializer = TaxFirmSerializer(tax,many=True)
+    taxfirm_serializer = TaxFirmSerializer(taxfirm)
     
+    print('tax bbbbfirm',taxfirm_serializer)
 
   
        
