@@ -62,6 +62,7 @@ class Company(models.Model):
     company = models.CharField(max_length=122)
     date_of_incorporation = models.DateField()
     contact_person = models.CharField(max_length=122)
+    share = models.IntegerField(default=100)
     entity_type = models.CharField(max_length=100, choices=entities)
     gst = models.CharField(max_length=100,null=True,blank=True)
     pan = models.CharField(max_length=100,null=True,blank=True)
@@ -116,17 +117,16 @@ class Branch(models.Model):
     
 
 class OwnerDetails(models.Model):
-    company = models.ForeignKey(Company,on_delete=models.CASCADE,null=True, blank=True)
-    name= models.CharField(max_length=50)
-    share = models.IntegerField()
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, null=True, blank=True)
+    name = models.CharField(max_length=50)
+    default_share = models.IntegerField()  # Removed extra space here
     pan = models.CharField(max_length=255)
     aadhar = models.CharField(max_length=255)
-    mobile =models.CharField(max_length=50)
+    mobile = models.CharField(max_length=50)
     email = models.EmailField(max_length=50)
 
     def __str__(self):
         return self.name
-    
 
 class BankDetails(models.Model):
     company = models.ForeignKey(Company,on_delete=models.CASCADE,null=True, blank=True)

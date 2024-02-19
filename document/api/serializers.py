@@ -22,7 +22,7 @@ class TaxFirmSerializer(serializers.ModelSerializer):
 class CompanySerializer(ModelSerializer):
     class Meta:
         model=Company
-        fields=['id','company','date_of_incorporation','contact_person','entity_type','username','password','logo', 'pan', 'gst']
+        fields=['id','company','date_of_incorporation','contact_person','share','entity_type','username','password','logo', 'pan', 'gst']
 
 
 class UserSerializer(ModelSerializer):
@@ -40,7 +40,7 @@ class BranchSerializer(ModelSerializer):
 class OwnerSerializer(ModelSerializer):
     class Meta:
         model = OwnerDetails
-        fields = ['id','name','share','pan','aadhar','mobile','email']
+        fields = ['id','name','default_share','pan','aadhar','mobile','email']
 
 
 

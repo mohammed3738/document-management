@@ -14,6 +14,8 @@ from .serializers import YourModelSerializer
 
 from rest_framework import status
 from rest_framework.generics import RetrieveUpdateAPIView
+from django.db.models import F
+
 
 
 
@@ -181,7 +183,7 @@ def company_details(request,pk):
     user_list = CustomUser.objects.filter(company=company)
     bank_list = BankDetails.objects.filter(company=company)
     aadhar_list = UdyamAadhar.objects.filter(company=company)
-    tan_list = Tan.objects.filter(company=company)
+    tan_list = Tan.objects.filter(company=company) 
     ptrc_list = Ptrc.objects.filter(company=company)
     ptec_list = Ptec.objects.filter(company=company)
     pan_list = Pan.objects.filter(company=company)
@@ -226,7 +228,9 @@ def company_details(request,pk):
     
     serialized_data = purchase_serializer.data
     report_serializer = YourModelSerializer(report,many=True)
-    print("purchae:",serialized_data)
+    # print("purchae:",serialized_data)
+    # owner_d=OwnerDetails.objects.filter(company=company)
+
   
        
 
@@ -402,18 +406,83 @@ def branch_details(request,branch_pk):
 # *******************Owner details views*************************
 
  
+# @api_view(['POST'])
+# def create_owner(request, pk):
+#     company = get_object_or_404(Company, id=pk)
+#     if request.method == "POST":
+#         owner_serializer = OwnerSerializer(data=request.data)
+#         if owner_serializer.is_valid():
+#             # Accessing the default value from the related Company instance
+#             # default_value = company.ownerdetails_set.model._meta.get_field('default_share').default
+
+#             # Extracting the current value from the request data
+#             share = owner_serializer.validated_data.get('default_share')
+#             print("default share 11:",share)
+#             # default_share = OwnerDetails._meta.get_field('default_share').default
+#             # print("kkjjkj",default_share)
+#             # if share <= default_share:
+#             #     # Update the default share value
+#             #         # Creating the owner
+#             #     new_share=int(default_share) - int(share)
+#             #     OwnerDetails._meta.get_field('default_share').default = new_share
+#             #     print("lll")
+#             owner_serializer.save(company=company)
+
+#                     # Updating the default value
+#                     # new_default = default_value - current_value
+#                     # company.ownerdetails_set.update(default_share=new_default)
+#                     # OwnerDetails.default_share=new_default
+#                     # print('jjjjjj',company.ownerdetails_set.model._meta.get_field('default_share').default)
+
+#                 #     return Response({'message': 'Owner created successfully.'}, status=status.HTTP_201_CREATED)
+#                 # else:
+#                 #     return Response({'error': 'Current value exceeds the default value.'}, status=status.HTTP_400_BAD_REQUEST)
+#             # else:
+#             #     return Response({'error': 'Invalid current value provided.'}, status=status.HTTP_400_BAD_REQUEST)
+#         return Response(owner_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     return Response({'message': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+
+
+
 @api_view(['POST'])
 def create_owner(request, pk):
+    # Retrieve the company instance
     company = get_object_or_404(Company, id=pk)
-    if request.method=="POST":
+    
+    if request.method == "POST":
         owner_serializer = OwnerSerializer(data=request.data)
+        
         if owner_serializer.is_valid():
-            owner_serializer.save(company=company)
-            return Response({'message': 'Owner created successfully.'}, status=status.HTTP_201_CREATED)
+            # Extract the default_share from the validated data
+            default_share = owner_serializer.validated_data.get('default_share')
             
-        return Response(owner_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    return Response({'message':'Method not allowed'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+            # Check if company's share is greater than or equal to the default_share
+            if company.share >= default_share:
+                # Create owner instance and associate it with the company
+                owner_serializer.save(company=company)
+                
+                # Calculate the new share for the company
+                new_share = company.share - default_share
+                
+                # Update the share field of the company
+                company.share = new_share
+                company.save()
 
+                # Serialize the updated company instance
+                company_ser = CompanySerializer(instance=company)
+                
+                return Response({'message': 'Owner created successfully.', 'company': company_ser.data}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'error': 'Invalid current value provided.'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(owner_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     return Response({'message': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+# In this code:
+
+# After updating the default_share field, we retrieve the updated value and print it to the console for debugging purposes.
+# We also print the number of owners updated (owners_updated) to confirm how many owner records were affected by the update operation
 
 @api_view(['POST','GET'])
 def update_owner(request, pk, owner_pk):
@@ -442,7 +511,17 @@ def update_owner(request, pk, owner_pk):
 def delete_owner(request,pk,owner_pk):
     company = get_object_or_404(Company, id=pk)
     owner = get_object_or_404(OwnerDetails, id=owner_pk)
+    # owner.default_share + company.share
+    print("defauklt 1:",company.share)
+    company_share=company.share #0
+    owner_share = owner.default_share
+    addition = company_share + owner_share
+    company.share=addition
+    company.save()
+
+    print('default shareeeee',company.share)
     owner.delete()
+
     return Response({"message": "Owner deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
 
 
@@ -924,7 +1003,7 @@ def create_sales_invoice(request, branch_pk):
 
 #     return Response({'message': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-
+    
 # @csrf_exempt
 @api_view(['POST','GET'])
 def create_purchase_invoice(request, branch_pk):
@@ -989,7 +1068,7 @@ def create_purchase_invoice(request, branch_pk):
     if request.method == 'POST':
         # Deserialize the Purchase Invoice data
         purchase_serializer = PurchaseInvoiceSerializer(data=request.data)
-
+        
         if purchase_serializer.is_valid():
             print("total invoie:",request.data)
             purchase_instance = purchase_serializer.save(branch=branch)
