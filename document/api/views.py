@@ -204,6 +204,7 @@ def company_details(request,pk):
     
     # filter ends here
     
+    company_serializer = CompanySerializer(company)
     owner_serializer = OwnerSerializer(owner_list,many=True)
     branch_serializer = BranchSerializer(branch_list,many=True)
     user_serializer = UserSerializer(user_list,many=True)
@@ -235,6 +236,7 @@ def company_details(request,pk):
        
 
     data = {
+        "company":company_serializer.data,
         "owners": owner_serializer.data,
         "branches": branch_serializer.data,
         "users":user_serializer.data,
