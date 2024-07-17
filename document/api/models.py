@@ -135,7 +135,7 @@ class BankDetails(models.Model):
     ifsc = models.CharField(max_length=50)
     account_type = models.CharField(max_length=50)
     branch = models.CharField( max_length=255)
-    attachment = models.FileField()
+    attachment = models.FileField(null=True, blank=True)
 
 
     def __str__(self):
@@ -149,7 +149,7 @@ class UdyamAadhar(models.Model):
     ua_password = models.CharField(max_length=100)
     remarks = models.CharField(max_length=500)
     filling_freq = models.CharField(max_length=100, choices = filing)
-    attachment = models.FileField()
+    attachment = models.FileField(null=True, blank=True)
 
 
     def __str__(self):
@@ -178,7 +178,7 @@ class Ptrc(models.Model):
     ptrc_password = models.CharField(max_length=100)
     remarks = models.CharField(max_length=500)
     filling_freq = models.CharField(max_length=100, choices = filing)
-    attachment = models.FileField()
+    attachment = models.FileField(null=True,blank=True)
 
 
     def __str__(self):
@@ -192,7 +192,7 @@ class Ptec(models.Model):
     ptec_password = models.CharField(max_length=100)
     remarks = models.CharField(max_length=500)
     filling_freq = models.CharField(max_length=100, choices = filing)
-    attachment = models.FileField()
+    attachment = models.FileField(null=True, blank=True)
 
 
     def __str__(self):
@@ -206,7 +206,7 @@ class Pan(models.Model):
     pan_password = models.CharField(max_length=100)
     remarks = models.CharField(max_length=500)
     filling_freq = models.CharField(max_length=100, choices = filing)
-    attachment = models.FileField()
+    attachment = models.FileField(null=True, blank=True)
 
 
     def __str__(self):
@@ -220,7 +220,7 @@ class Msme(models.Model):
     msme_password = models.CharField(max_length=100)
     remarks = models.CharField(max_length=500)
     filling_freq = models.CharField(max_length=100, choices = filing)
-    attachment = models.FileField()
+    attachment = models.FileField(null=True, blank=True)
 
 
     def __str__(self):
@@ -234,7 +234,7 @@ class Gst(models.Model):
     gst_password = models.CharField(max_length=100)
     remarks = models.CharField(max_length=500)
     filling_freq = models.CharField(max_length=100, choices = filing)
-    attachment = models.FileField()
+    attachment = models.FileField(null=True, blank=True)
 
     def __str__(self):
         return self.gst_number
@@ -403,7 +403,7 @@ class ProductDetails(models.Model):
     unit_of_measure = models.CharField(max_length=50,null=True, blank=True)
     unit=models.IntegerField(null=True, blank=True)
     rate = models.IntegerField(null=True, blank=True)
-    gst_per=models.IntegerField(null=True, blank=True)
+    gst_per=models.IntegerField(null=True, blank=True, default=0)
     taxable_amount=models.IntegerField(null=True, blank=True)
     cgst = models.IntegerField(null=True, blank=True)
     sgst = models.IntegerField(null=True, blank=True)
@@ -533,10 +533,10 @@ class BankStatement(models.Model):
     amount = models.FloatField(null=True,blank=True)  
     month = models.CharField(max_length=50,choices=month)
     year = models.IntegerField(('year'), validators=[MinValueValidator(2018), max_value_current_year])   
-    attachment = models.FileField()
+    attachment = models.FileField(null=True, blank=True)
 
-    def __str__(self):
-        return self.month.strftime("%B")
+    # def __str__(self):
+    #     return self.month.strftime("%B")
     
 
 class InterestCertificate(models.Model):
@@ -546,10 +546,10 @@ class InterestCertificate(models.Model):
     amount = models.FloatField(null=True,blank=True)
     month = models.CharField(max_length=50,choices=month)
     year = models.IntegerField(('year'), validators=[MinValueValidator(2018), max_value_current_year])
-    attachment = models.FileField()
+    attachment = models.FileField(null=True, blank=True)
 
-    def __str__(self):
-        return self.month.strftime("%B")
+    # def __str__(self):
+    #     return self.month.strftime("%B")
     
 class AssetsPurchasedBill(models.Model):
     company = models.ForeignKey(Company,on_delete=models.CASCADE,null=True, blank=True)
@@ -558,10 +558,10 @@ class AssetsPurchasedBill(models.Model):
     amount = models.FloatField(null=True,blank=True)
     month = models.CharField(max_length=50,choices=month)
     year = models.IntegerField(('year'), validators=[MinValueValidator(2018), max_value_current_year])
-    attachment = models.FileField()
+    attachment = models.FileField(null=True, blank=True)
 
-    def __str__(self):
-        return self.month.strftime("%B")
+    # def __str__(self):
+    #     return self.month.strftime("%B")
     
 
 
@@ -572,10 +572,10 @@ class LoanVoucher(models.Model):
     amount = models.FloatField(null=True,blank=True)
     month = models.CharField(max_length=50,choices=month)
     year = models.IntegerField(('year'), validators=[MinValueValidator(2018), max_value_current_year])
-    attachment = models.FileField()
+    attachment = models.FileField(null=True, blank=True)
 
-    def __str__(self):
-        return self.month.strftime("%B")
+    # def __str__(self):
+    #     return self.month.strftime("%B")
     
 
 class TdsCertificate(models.Model):
@@ -584,21 +584,21 @@ class TdsCertificate(models.Model):
     amount = models.FloatField(null=True,blank=True)  
     month = models.CharField(max_length=50,choices=month)
     year = models.IntegerField(('year'), validators=[MinValueValidator(2018), max_value_current_year])
-    attachment = models.FileField()
+    attachment = models.FileField(null=True, blank=True)
 
-    def __str__(self):
-        return self.month.strftime("%B")
+    # def __str__(self):
+    #     return self.month.strftime("%B")
 
 
 class As26(models.Model):
     company = models.ForeignKey(Company,on_delete=models.CASCADE,null=True, blank=True)
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)  
-    month = models.CharField(max_length=50,choices=month)
-    year = models.IntegerField(('year'), validators=[MinValueValidator(2018), max_value_current_year])
-    attachment = models.FileField()
+    month = models.CharField(max_length=50,choices=month,null=True,blank=True)
+    year = models.IntegerField(('year'), validators=[MinValueValidator(2018), max_value_current_year],null=True,blank=True)
+    attachment = models.FileField(null=True, blank=True)
 
-    def __str__(self):
-        return self.month.strftime("%B")
+    # def __str__(self):
+    #     return self.id
 
 
 

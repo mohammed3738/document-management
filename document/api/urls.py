@@ -35,7 +35,11 @@ urlpatterns = [
     path('create-branch/<int:pk>', views.create_branch,name="create-branch"),
     path('update-branch/<int:pk>/<int:branch_pk>', views.update_branch,name="update-branch"),
     path('delete-branch/<int:pk>/<int:branch_pk>', views.delete_branch,name="delete-branch"),
-
+    
+    
+    
+    
+    # ++++++++++++++++++++++++++++++++---------------------------------++++*
     # branch detail
     path('branch-details/<int:branch_pk>', views.branch_details,name="branch-details"),
 
@@ -88,7 +92,8 @@ urlpatterns = [
     
     path('create-purchase/<int:branch_pk>',views.create_purchase_invoice,name="create-purchase"),
     path('create-purchase-company/<int:pk>',views.create_purchase_invoice_company,name="create-purchase-company"),
-    path('edit-purchase/<int:branch_pk>/<int:purchase_pk>',views.update_purchase_invoice,name="edit-purchase"),
+    path('edit-purchase/<int:branch_pk>/<int:purchase_pk>',views.edit_purchase_invoice,name="edit-purchase"),
+    path('delete-purchase/<int:branch_pk>/<int:purchase_pk>',views.delete_purchase_invoice,name="delete-purchase"),
     path('purchase-detail/<int:pk>/<int:purchase_pk>',views.purchase_detail,name="purchase-detail"),
 
     # Credit Note
